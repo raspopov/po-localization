@@ -3,8 +3,8 @@
 //
 // This file is part of Localization library.
 // Copyright (c) Nikolay Raspopov, 2011.
-// E-mail: raspopov@cherubicsoft.com
-// Web: http://www.cherubicsoft.com/
+// E-mail: ryo.rabbit@gmail.com
+// Web: http://code.google.com/p/po-localization/
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
