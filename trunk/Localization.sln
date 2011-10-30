@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "exe2po", "exe2po\exe2po.vcproj", "{29F88A73-AB86-4748-B96B-E010EA4DD45D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sample", "sample\sample.vcproj", "{13D18C95-84A4-4B3A-AC51-40B90C7B7A07}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{942E75F0-EA4F-4234-9EE6-4483D6D0D567}"
+	ProjectSection(SolutionItems) = preProject
+		lgpl.txt = lgpl.txt
+		Localization.cpp = Localization.cpp
+		Localization.h = Localization.h
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(DPCodeReviewSolutionGUID) = preSolution
+		DPCodeReviewSolutionGUID = {00000000-0000-0000-0000-000000000000}
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{29F88A73-AB86-4748-B96B-E010EA4DD45D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{29F88A73-AB86-4748-B96B-E010EA4DD45D}.Debug|Win32.Build.0 = Debug|Win32
+		{29F88A73-AB86-4748-B96B-E010EA4DD45D}.Release|Win32.ActiveCfg = Release|Win32
+		{29F88A73-AB86-4748-B96B-E010EA4DD45D}.Release|Win32.Build.0 = Release|Win32
+		{13D18C95-84A4-4B3A-AC51-40B90C7B7A07}.Debug|Win32.ActiveCfg = Debug|Win32
+		{13D18C95-84A4-4B3A-AC51-40B90C7B7A07}.Debug|Win32.Build.0 = Debug|Win32
+		{13D18C95-84A4-4B3A-AC51-40B90C7B7A07}.Release|Win32.ActiveCfg = Release|Win32
+		{13D18C95-84A4-4B3A-AC51-40B90C7B7A07}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
