@@ -9,6 +9,27 @@ for translators).
 
 ========================================================================
 
+Compression
+
+Library can load translations in uncompressed or compressed formats 
+(Lempel-Ziv algorithm only). Uncompressed files has ".po" extension and
+compressed ones has ".p_" extension. Compressed files can be produced
+by Microsoft File Compression Utility named "compress.exe". It can be
+found in any old Microsoft OS or Resource Kit. Usage example:
+
+	compress.exe you_application.exe.09.po you_application.exe.09.p_
+
+Compressed files can be also inserted as resources (detected by magic
+number 'SZDD' at begining of file).
+
+Library uses WinAPI LZExpand library (Lz32.dll) to handle compressed
+files.
+
+Note: Some versions of compress.exe produces incorrect compressed files
+(1 byte differ) just get another version of utility.
+
+========================================================================
+
 EXE to PO file converter usage:
 
 	exe2po.exe {input file.exe} {output file.po}
@@ -55,6 +76,10 @@ License:
 
 Copyrights:
 
-Copyright (c) Nikolay Raspopov, 2011.
+PO-Localization
+Copyright (C) Nikolay Raspopov, 2011.
 E-mail: ryo.rabbit@gmail.com
 Web: http://code.google.com/p/po-localization/
+
+Microsoft (R) File Compression Utility Version 2.50
+Copyright (C) Microsoft Corp. 1990-1994. All rights reserved.

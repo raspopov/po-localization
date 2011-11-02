@@ -70,6 +70,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
+				DelayLoadDLLs="ole32.dll;winspool.drv"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -154,6 +155,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
+				DelayLoadDLLs="ole32.dll;winspool.drv"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -193,6 +195,30 @@
 			<File
 				RelativePath=".\sample.cpp"
 				>
+			</File>
+			<File
+				RelativePath=".\res\sample.exe.19.po"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compress..."
+						CommandLine="&quot;$(SolutionDir)compress.exe&quot; &quot;$(InputPath)&quot; &quot;$(InputDir)$(InputName).p_&quot;&#x0D;&#x0A;"
+						Outputs="$(InputDir)$(InputName).p_"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compress..."
+						CommandLine="&quot;$(SolutionDir)compress.exe&quot; &quot;$(InputPath)&quot; &quot;$(InputDir)$(InputName).p_&quot;&#x0D;&#x0A;"
+						Outputs="$(InputDir)$(InputName).p_"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\sampleDlg.cpp"
@@ -247,7 +273,7 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\res\sample.exe.19.po"
+				RelativePath=".\res\sample.exe.19.p_"
 				>
 			</File>
 			<File
