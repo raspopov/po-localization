@@ -1,5 +1,5 @@
 //
-// sample.cpp 
+// sample.cpp
 //
 // This file is part of Localization library.
 // Copyright (c) Nikolay Raspopov, 2011.

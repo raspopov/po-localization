@@ -16,10 +16,8 @@
 // Neutral resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
-#ifdef _WIN32
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 #pragma code_page(1251)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -102,7 +100,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_SAMPLE_DIALOG, DIALOG
     BEGIN
@@ -130,6 +128,8 @@ BEGIN
     IDC_COMBO1, 0x403, 19, 0
 0x6574, 0x7478, 0x6920, 0x206e, 0x6f63, 0x626d, 0x626f, 0x786f, 0x3220, 
 "\000" 
+    IDC_LANGS, 0x403, 11, 0
+0x6d65, 0x7470, 0x2079, 0x6164, 0x6174, "\000" 
     0
 END
 
@@ -139,7 +139,7 @@ END
 // Menu
 //
 
-IDR_MENU1 MENU 
+IDR_MENU1 MENU
 BEGIN
     POPUP "Menu popup 1"
     BEGIN
@@ -173,7 +173,7 @@ END
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_STRING130           "Sample string\nand ""other"" string"
 END
@@ -183,13 +183,11 @@ END
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Russian resources
+// Russian (Russia) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
-#ifdef _WIN32
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 #pragma code_page(1251)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -226,7 +224,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Russian resources
+#endif    // Russian (Russia) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
