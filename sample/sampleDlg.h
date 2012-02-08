@@ -23,7 +23,6 @@
 
 #pragma once
 
-
 class CSampleDlg : public CDialog
 {
 public:

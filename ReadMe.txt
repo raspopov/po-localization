@@ -77,7 +77,7 @@ License:
 Copyrights:
 
 PO-Localization
-Copyright (C) Nikolay Raspopov, 2011.
+Copyright (C) Nikolay Raspopov, 2011-2012.
 E-mail: ryo.rabbit@gmail.com
 Web: http://code.google.com/p/po-localization/
 

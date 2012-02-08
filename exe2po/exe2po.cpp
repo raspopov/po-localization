@@ -2,7 +2,7 @@
 // exe2po.cpp
 //
 // EXE to PO file converter.
-// Copyright (c) Nikolay Raspopov, 2011.
+// Copyright (c) Nikolay Raspopov, 2011-2012.
 // E-mail: ryo.rabbit@gmail.com
 // Web: http://code.google.com/p/po-localization/
 //
@@ -23,7 +23,8 @@
 
 #include "stdafx.h"
 
-#define ORDINAL	0x80000000
+#define RT_DLGINIT	MAKEINTRESOURCE(0xf0)
+#define ORDINAL		0x80000000
 
 static const struct
 {
@@ -53,6 +54,7 @@ StandardResTypes[] =
 	{ _T("RT_ANIICON"),		RT_ANIICON },
 	{ _T("RT_HTML"),		RT_HTML },
 	{ _T("RT_MANIFEST"),	RT_MANIFEST },
+	{ _T("RT_DLGINIT"),		RT_DLGINIT },
 	{ NULL,					NULL }
 };
 
@@ -142,7 +144,7 @@ void Output(FILE* hFile, UINT dwID, HMENU hMenu, UINT& nPopup)
 				{
 					fprintf( hFile, "#. Menu item\n#: MENUITEM.%u.%u\n", dwID, mii.wID );
 					OutputMsg( hFile, mii.dwTypeData );
-				}	
+				}
 			}
 		}
 	}
@@ -190,7 +192,8 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 			}
 		}
 		else if ( lpszType == RT_STRING ||
-				  lpszType == RT_DIALOG )
+				  lpszType == RT_DIALOG ||
+				  lpszType == RT_DLGINIT )
 		{
 			if ( HRSRC hResInfo = FindResource( hModule, lpszName, lpszType ) )
 			{
@@ -223,26 +226,26 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 						{
 							DLGTEMPLATE* pTemplate = (DLGTEMPLATE*)hData;
 							BOOL bDialogEx = _DialogSplitHelper::IsDialogEx( pTemplate );
-							
+
 							WORD* pw;
 							if ( bDialogEx )
 								pw = (WORD*)((_DialogSplitHelper::DLGTEMPLATEEX*)pTemplate + 1);
 							else
 								pw = (WORD*)(pTemplate + 1);
-							
+
 							if (*pw == 0xFFFF)
 								pw += 2;				// Has menu ID, so skip 2 words
 							else
 								while (*pw++);			// Either No menu, or string, skip past terminating NULL
-							
+
 							if (*pw == 0xFFFF)
 								pw += 2;				// Has class atom, so skip 2 words
 							else
 								while (*pw++);			// Either No class, or string, skip past terminating NULL
 
-							_ftprintf( stderr, _T("\tDIALOGCAPTION.%u\n"), uID );
-							if ( *pw )
+							if ( *pw != 0 && *pw != 0xffff )
 							{
+								_ftprintf( stderr, _T("\tDIALOGCAPTION.%u\n"), uID );
 								fprintf( hFile, "#. Dialog caption\n#: DIALOGCAPTION.%u\n", uID );
 								OutputMsg( hFile, (LPCWSTR)pw );
 							}
@@ -253,24 +256,30 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 							for ( WORD nItem = 0; nItem < nItems; ++nItem )
 							{
 								UINT wID = bDialogEx ? (WORD)((_DialogSplitHelper::DLGITEMTEMPLATEEX*)pItem)->id : pItem->id;
-								
+
 								WORD* pw;
 								if ( bDialogEx )
 									pw = (WORD*)((_DialogSplitHelper::DLGITEMTEMPLATEEX*)pItem + 1);
 								else
 									pw = (WORD*)(pItem + 1);
-								
+
 								LPCWSTR szClass = L"";
 								if ( *pw == 0xFFFF )			// Skip class name ordinal or string
 								{
 									switch ( *++pw )
 									{
-									case 0x0080: szClass = L"Button"; break;
-									case 0x0081: szClass = L"Edit"; break;
-									case 0x0082: szClass = L"Static"; break;
-									case 0x0083: szClass = L"ListBox"; break;
-									case 0x0084: szClass = L"ScrollBar"; break;
-									case 0x0085: szClass = L"ComboBox"; break;
+									case 0x0080:
+										szClass = L"Button"; break;
+									case 0x0081:
+										szClass = L"Edit"; break;
+									case 0x0082:
+										szClass = L"Static"; break;
+									case 0x0083:
+										szClass = L"ListBox"; break;
+									case 0x0084:
+										szClass = L"ScrollBar"; break;
+									case 0x0085:
+										szClass = L"ComboBox"; break;
 									}
 									++pw;
 								}
@@ -283,14 +292,31 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 								if ( wID == 0xffff )
 									wID = ORDINAL | i++;
 
-								_ftprintf( stderr, _T("\tDIALOGCONTROL.%u.%s.%u\n"), uID, szClass, wID );
-								if ( *pw )
+								if ( *pw != 0 && *pw != 0xffff )
 								{
+									_ftprintf( stderr, _T("\tDIALOGCONTROL.%u.%s.%u = \"%s\"\n"), uID, szClass, wID, (LPCWSTR)pw );
 									fprintf( hFile, "#. Dialog control\n#: DIALOGCONTROL.%u.%s.%u\n", uID, (LPCSTR)CW2A(szClass), wID );
 									OutputMsg( hFile, (LPCWSTR)pw );
 								}
+								else
+								{
+									_ftprintf( stderr, _T("\tDIALOGCONTROL.%u.%s.%u (empty)\n"), uID, szClass, wID );
+								}
 
 								pItem = _DialogSplitHelper::FindNextDlgItem( pItem, bDialogEx );
+							}
+						}
+						else if ( lpszType == RT_DLGINIT )
+						{
+							const char* p = (const char*)hData;
+							for (;;)
+							{
+								const _DialogSplitHelper::DLGINITSTRUCT& pItem = *(const _DialogSplitHelper::DLGINITSTRUCT*)p;
+								if ( ! pItem.nIDC )
+									break;
+								_ftprintf( stderr, _T("\tDLGINIT.%u.%u=0x%04x %u \"%s\"\n"),
+									uID, pItem.nIDC, pItem.message, pItem.dwSize, (LPCTSTR)CA2T( p + sizeof( _DialogSplitHelper::DLGINITSTRUCT ) ) );
+								p += pItem.dwSize + sizeof( _DialogSplitHelper::DLGINITSTRUCT );
 							}
 						}
 					}
@@ -298,7 +324,6 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 				}
 			}
 		}
-		// else
 	}
 
 	return TRUE;
@@ -321,9 +346,8 @@ BOOL CALLBACK EnumResTypeProc(HMODULE hModule, LPTSTR lpszType, LONG lParam)
 			_ftprintf( stderr, _T("\nResource type: \"%s\"\n"), lpszType );
 	}
 
-	return EnumResourceNames( hModule, lpszType, EnumResNameProc, lParam ); 
+	return EnumResourceNames( hModule, lpszType, EnumResNameProc, lParam );
 }
-
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -345,7 +369,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	else
 		szDestination = argv[ 2 ];
 
-	HMODULE hExe = LoadLibraryEx( szSource, NULL, LOAD_LIBRARY_AS_DATAFILE ); 
+	HMODULE hExe = LoadLibraryEx( szSource, NULL, LOAD_LIBRARY_AS_DATAFILE );
 	if ( ! hExe )
 	{
 		_ftprintf( stderr, _T("Can't load input file: %s\n"), szSource );
