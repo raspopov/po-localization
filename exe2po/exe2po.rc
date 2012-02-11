@@ -16,10 +16,8 @@
 // Neutral resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
-#ifdef _WIN32
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 #pragma code_page(1251)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -27,8 +25,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,0
- PRODUCTVERSION 1,0,0,0
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -46,12 +44,12 @@ BEGIN
             VALUE "Comments", "http://code.google.com/p/po-localization/"
             VALUE "CompanyName", "Nikolay Raspopov"
             VALUE "FileDescription", "EXE to PO file converter"
-            VALUE "FileVersion", "1, 0, 0, 0"
+            VALUE "FileVersion", "1.0.0.1"
             VALUE "InternalName", "exe2po"
-            VALUE "LegalCopyright", "Copyright (c) Nikolay Raspopov, 2011."
+            VALUE "LegalCopyright", "Copyright (c) Nikolay Raspopov, 2011-2012."
             VALUE "OriginalFilename", "exe2po.exe"
             VALUE "ProductName", "Localization Library"
-            VALUE "ProductVersion", "1, 0, 0, 0"
+            VALUE "ProductVersion", "1.0.0.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -74,13 +72,11 @@ IDR_MAINFRAME           ICON                    "res\\exe2po.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Russian resources
+// Russian (Russia) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
-#ifdef _WIN32
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 #pragma code_page(1251)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -107,7 +103,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Russian resources
+#endif    // Russian (Russia) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
