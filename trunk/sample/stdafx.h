@@ -2,7 +2,7 @@
 // stdafx.h
 //
 // This file is part of Localization library.
-// Copyright (c) Nikolay Raspopov, 2011.
+// Copyright (c) Nikolay Raspopov, 2011-2012.
 // E-mail: ryo.rabbit@gmail.com
 // Web: http://code.google.com/p/po-localization/
 //
@@ -23,30 +23,12 @@
 
 #pragma once
 
-#ifndef _SECURE_ATL
 #define _SECURE_ATL 1
-#endif
-
-#ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
-#endif
-
-#ifndef WINVER					// Specifies that the minimum required platform is Windows Vista.
-#define WINVER 0x0600			// Change this to the appropriate value to target other versions of Windows.
-#endif
-
-#ifndef _WIN32_WINNT			// Specifies that the minimum required platform is Windows Vista.
-#define _WIN32_WINNT 0x0600		// Change this to the appropriate value to target other versions of Windows.
-#endif
-
-#ifndef _WIN32_WINDOWS          // Specifies that the minimum required platform is Windows 98.
+#define WINVER 0x0500			// Change this to the appropriate value to target other versions of Windows.
+#define _WIN32_WINNT 0x0500		// Change this to the appropriate value to target other versions of Windows.
 #define _WIN32_WINDOWS 0x0410	// Change this to the appropriate value to target Windows Me or later.
-#endif
-
-#ifndef _WIN32_IE				// Specifies that the minimum required platform is Internet Explorer 7.0.
-#define _WIN32_IE 0x0700		// Change this to the appropriate value to target other versions of IE.
-#endif
-
+#define _WIN32_IE 0x0600		// Change this to the appropriate value to target other versions of IE.
 #define WIN32_LEAN_AND_MEAN
 #define STRICT
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS
