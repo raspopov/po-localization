@@ -20,7 +20,7 @@ found in any old Microsoft OS or Resource Kit. Usage example:
 	compress.exe you_application.exe.09.po you_application.exe.09.p_
 
 Compressed files can be also inserted as resources (detected by magic
-number 'SZDD' at begining of file).
+number 'SZDD' at beginning of file).
 
 Library uses WinAPI LZExpand library (Lz32.dll) to handle compressed
 files.
@@ -33,6 +33,10 @@ Note: Some versions of compress.exe produces incorrect compressed files
 EXE to PO file converter usage:
 
 	exe2po.exe {input file.exe} {output file.po}
+	
+NOTE: You can ease converter usage by dropping exe2po.exe to Windows folder
+and registering "Create PO" context menu by merging with "exe2po-register.reg"
+file (undo with "exe2po-unregister.reg" file).
 
 Generated .po-file blocks for menu resources:
 
