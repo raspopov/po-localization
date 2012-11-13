@@ -23,13 +23,8 @@
 
 #pragma once
 
-#include <windowsx.h>		// for ComboBox_*
-#include <lzexpand.h>		// for LZOpenFile,LZRead,LZClose
 #include <atlstr.h>			// for CString
 #include <atlcoll.h>		// for CAtlMap
-#include <atlfile.h>		// for CAtlFile, CAtlTemporaryFile
-
-#pragma comment(lib,"lz32")	// for LZOpenFile,LZRead,LZClose
 
 using namespace ATL;
 
