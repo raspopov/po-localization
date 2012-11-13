@@ -23,6 +23,11 @@
 
 #include "Localization.h"
 
+#include <atlfile.h>		// for CAtlFile, CAtlTemporaryFile
+#include <windowsx.h>		// for ComboBox_*
+#include <lzexpand.h>		// for LZOpenFile,LZRead,LZClose
+#pragma comment(lib,"lz32")	// for LZOpenFile,LZRead,LZClose
+
 #ifdef _DEBUG
 #define LOG		ATLTRACE
 #else
