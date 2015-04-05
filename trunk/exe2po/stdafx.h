@@ -2,9 +2,8 @@
 // stdafx.h
 //
 // EXE to PO file converter.
-// Copyright (c) Nikolay Raspopov, 2011.
-// E-mail: ryo.rabbit@gmail.com
-// Web: http://code.google.com/p/po-localization/
+// Copyright (c) Nikolay Raspopov, 2011-2015.
+// Web: https://sourceforge.net/projects/po-localization/
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
