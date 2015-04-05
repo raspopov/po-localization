@@ -81,9 +81,8 @@ License:
 Copyrights:
 
 PO-Localization
-Copyright (C) Nikolay Raspopov, 2011-2012.
-E-mail: ryo.rabbit@gmail.com
-Web: http://code.google.com/p/po-localization/
+Copyright (C) Nikolay Raspopov, 2011-2015.
+https://sourceforge.net/projects/po-localization/
 
 Microsoft (R) File Compression Utility Version 2.50
 Copyright (C) Microsoft Corp. 1990-1994. All rights reserved.
