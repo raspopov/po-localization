@@ -1,37 +1,34 @@
-//
-// Localization.h
-//
-// This file is part of Localization library.
-// Copyright (c) Nikolay Raspopov, 2011-2015.
-// E-mail: ryo.rabbit@gmail.com
-// Web: https://sourceforge.net/projects/po-localization/
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 2.1 of the License, or (at your option) any later version.
-//
-// This library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public
-// License along with this library; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-//
+/*
+This file is part of Localization library
+https://sourceforge.net/projects/po-localization/
+
+Copyright (C) 2011-2015 Nikolay Raspopov <raspopov@cherubicsoft.com>
+
+This program is free software : you can redistribute it and / or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+( at your option ) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.If not, see < http://www.gnu.org/licenses/>.
+*/
 
 #pragma once
 
 #include <atlstr.h>			// for CString
-#include <atlcoll.h>		// for CAtlMap
+#include <atlcoll.h>		// for CAtlMap, CAtlList
 
 using namespace ATL;
 
 // Class to load language .po-files (Portable Object) directly and
 // to translate strings, menus and dialogs according selected language.
 
-class CLocalization
+class ATL_NO_VTABLE CLocalization
 {
 public:
 	CLocalization(LANGID nDefault = LANG_ENGLISH); // Set default/native language
@@ -110,15 +107,15 @@ public:
 	static CString GetLangName(LANGID nLangID);
 
 protected:
-	CString						m_strModule;		// Path used to load language files
-	CAtlMap< LANGID, CString >	m_pLanguages;		// List of available language files
-	LANGID						m_nDefaultLangID;	// Default language
-	LANGID						m_nLangID;			// Selected language
-	CAtlMap< UINT, CString >	m_pStrings;			// Loaded strings
-	CAtlMap< UINT, CString >	m_pMenus;			// Loaded menus
-	CAtlMap< UINT, CString >	m_pDialogs;			// Loaded dialogs
+	CString							m_strModule;		// Path used to load language files
+	CAtlMap< LANGID, CString >		m_pLanguages;		// List of available language files
+	LANGID							m_nDefaultLangID;	// Default language
+	LANGID							m_nLangID;			// Selected language
+	CAtlMap< UINT, CString >		m_pStrings;			// Loaded strings
+	CAtlMap< UINT, CString >		m_pMenus;			// Loaded menus
+	CAtlMap< ULONGLONG, CString >	m_pDialogs;			// Loaded dialogs
 
-	BOOL Add(const CString& sRef, const CString& sTranslated);
+	BOOL Add(const CAtlList< CString >& lRef, const CString& sTranslated);
 
 	static BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName, LONG_PTR lParam);
 };
