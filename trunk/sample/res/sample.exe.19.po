@@ -3,128 +3,58 @@ msgstr ""
 "Project-Id-Version: sample.exe\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
-"Last-Translator: ryo-oh-ki <ryo-oh-ki@narod.ru>\n"
+"Last-Translator: Nikolay Raspopov <raspopov@cherubicsoft.com>\n"
 "Language-Team: \n"
+"Language: ru_RU\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7\n"
 
-#. Menu popup
-#: MENUPOPUP.131.0
-msgid "Menu popup 1"
-msgstr "Меню 1"
+#: DIALOGCONTROL.102.SysLink.1011
+msgid "<a>SysLink Text</a>"
+msgstr "<a>Текст ссылки</a>"
 
-#. Menu item
 #: MENUITEM.131.32773
 msgid "Menu item 1"
 msgstr "Пункт меню 1"
 
-#. Menu item
 #: MENUITEM.131.32774
 msgid "Menu item 2"
 msgstr "Пункт меню 2"
 
-#. Menu popup
-#: MENUPOPUP.131.1
-msgid "Menu popup 2"
-msgstr "Меню 2"
-
-#. Menu item
 #: MENUITEM.131.32775
 msgid "Menu item 3"
 msgstr "Пункт меню 3"
 
-#. Menu item
 #: MENUITEM.131.32776
 msgid "Menu item 4"
 msgstr "Пункт меню 4"
 
-#. Menu popup
-#: MENUPOPUP.131.2
-msgid "Menu popup 3"
-msgstr "Меню 3"
-
-#. Menu item
 #: MENUITEM.131.32778
 msgid "Menu item 5"
 msgstr "Пункт меню 5"
 
-#. Menu item
 #: MENUITEM.131.32777
 msgid "Menu item 6"
 msgstr "Пункт меню 6"
 
-#. Dialog caption
-#: DIALOGCAPTION.102
-msgid "Text of dialog caption"
-msgstr "Заголовок диалога"
+#: MENUPOPUP.131.0
+msgid "Menu popup 1"
+msgstr "Меню 1"
 
-#. Dialog control
+#: MENUPOPUP.131.1
+msgid "Menu popup 2"
+msgstr "Меню 2"
+
+#: MENUPOPUP.131.2
+msgid "Menu popup 3"
+msgstr "Меню 3"
+
 #: DIALOGCONTROL.102.Button.1
 msgid "Ok"
 msgstr "Да"
 
-#. Dialog control
-#: DIALOGCONTROL.102.Button.1000
-msgid "Text on button"
-msgstr "Текст на кнопке"
-
-#. Dialog control
-#: DIALOGCONTROL.102.Button.1001
-msgid "Text on checkbox"
-msgstr "Текст на чекбоксе"
-
-#. Dialog control
-#: DIALOGCONTROL.102.Button.2147483648
-msgid "Text on group"
-msgstr "Текст группы"
-
-#. Dialog control
-#: DIALOGCONTROL.102.Button.1002
-msgid "Text on radiobutton 1"
-msgstr "Текст на радиокнопке 1"
-
-#. Dialog control
-#: DIALOGCONTROL.102.Button.1003
-msgid "Text on radiobutton 2"
-msgstr "Текст на радиокнопке 2"
-
-#. Dialog control
-#: DIALOGCONTROL.102.Static.2147483649
-msgid "Text on text control 1"
-msgstr "Текст 1"
-
-#. Dialog control
-#: DIALOGCONTROL.102.Static.2147483650
-msgid "Text on text control 2"
-msgstr "Текст 2"
-
-#. Dialog caption
-#: DIALOGCAPTION.30721
-msgid "New"
-msgstr ""
-
-#. Dialog control
-#: DIALOGCONTROL.30721.Static.2147483648
-msgid "&New "
-msgstr ""
-
-#. Dialog control
-#: DIALOGCONTROL.30721.Button.1
-msgid "OK"
-msgstr ""
-
-#. Dialog control
-#: DIALOGCONTROL.30721.Button.2
-msgid "Cancel"
-msgstr ""
-
-#. Dialog control
-#: DIALOGCONTROL.30721.Button.57670
-msgid "&Help"
-msgstr ""
-
-#. String resource
 #: STRING.130
 msgid ""
 "Sample string\n"
@@ -133,3 +63,38 @@ msgstr ""
 "Пример строки\n"
 "и \"другой\" пример строки"
 
+#: DLGINIT.102.1004.1
+msgid "text in combobox 1"
+msgstr "Текст в комбобоксе 1"
+
+#: DLGINIT.102.1004.2
+msgid "text in combobox 2"
+msgstr "Текст в комбобоксе 2"
+
+#: DIALOGCAPTION.102
+msgid "Text of dialog caption"
+msgstr "Заголовок диалога"
+
+#: DIALOGCONTROL.102.Button.1000
+msgid "Text on button"
+msgstr "Текст на кнопке"
+
+#: DIALOGCONTROL.102.Button.1001
+msgid "Text on checkbox"
+msgstr "Текст на чекбоксе"
+
+#: DIALOGCONTROL.102.Button.2147483648
+msgid "Text on group"
+msgstr "Текст группы"
+
+#: DIALOGCONTROL.102.Button.1002
+msgid "Text on radiobutton 1"
+msgstr "Текст на радиокнопке 1"
+
+#: DIALOGCONTROL.102.Button.1003
+msgid "Text on radiobutton 2"
+msgstr "Текст на радиокнопке 2"
+
+#: DIALOGCONTROL.102.Static.2147483649 DIALOGCONTROL.102.Static.2147483650
+msgid "Text on text control"
+msgstr "Текст на текстовом элементе"

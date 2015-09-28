@@ -45,12 +45,13 @@ BEGIN
     GROUPBOX        "Text on group",IDC_STATIC,7,42,223,42
     CONTROL         "Text on radiobutton 1",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,13,55,141,10
     CONTROL         "Text on radiobutton 2",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,13,66,141,10
-    LTEXT           "Text on text control 1",IDC_STATIC,7,88,223,8
-    LTEXT           "Text on text control 2",IDC_STATIC,7,99,223,8
+    LTEXT           "Text on text control",IDC_STATIC,7,88,223,8
+    LTEXT           "Text on text control",IDC_STATIC,7,99,223,8
     COMBOBOX        IDC_COMBO1,7,114,223,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_EDIT2,7,135,223,39,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT2,7,135,223,24,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,182,223,1
     COMBOBOX        IDC_LANGS,7,192,223,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "<a>SysLink Text</a>",IDC_SYSLINK1,"SysLink",WS_TABSTOP,7,165,223,14
 END
 
 
@@ -60,8 +61,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,3
- PRODUCTVERSION 1,0,0,3
+ FILEVERSION 1,0,0,4
+ PRODUCTVERSION 1,0,0,4
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -77,14 +78,14 @@ BEGIN
         BLOCK "000004b0"
         BEGIN
             VALUE "Comments", "http://code.google.com/p/po-localization/"
-            VALUE "CompanyName", "Nikolay Raspopov"
+            VALUE "CompanyName", "Raspopov"
             VALUE "FileDescription", "Localization Library Sample"
-            VALUE "FileVersion", "1.0.0.3"
+            VALUE "FileVersion", "1.0.0.4"
             VALUE "InternalName", "sample"
-            VALUE "LegalCopyright", "Copyright (c) Nikolay Raspopov, 2011-2012."
+            VALUE "LegalCopyright", "Copyright © 2011-2015 Nikolay Raspopov"
             VALUE "OriginalFilename", "sample.exe"
             VALUE "ProductName", "Localization Library"
-            VALUE "ProductVersion", "1.0.0.3"
+            VALUE "ProductVersion", "1.0.0.4"
         END
     END
     BLOCK "VarFileInfo"
@@ -128,8 +129,6 @@ BEGIN
     IDC_COMBO1, 0x403, 19, 0
 0x6574, 0x7478, 0x6920, 0x206e, 0x6f63, 0x626d, 0x626f, 0x786f, 0x3220, 
 "\000" 
-    IDC_LANGS, 0x403, 11, 0
-0x6d65, 0x7470, 0x2079, 0x6164, 0x6174, "\000" 
     0
 END
 
@@ -167,6 +166,17 @@ END
 //
 
 25                      PO                      "res\\sample.exe.19.p_"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_SAMPLE_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

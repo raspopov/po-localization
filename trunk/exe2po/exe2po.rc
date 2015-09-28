@@ -25,8 +25,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,3
- PRODUCTVERSION 1,0,0,3
+ FILEVERSION 1,0,0,4
+ PRODUCTVERSION 1,0,0,4
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -42,14 +42,14 @@ BEGIN
         BLOCK "000004b0"
         BEGIN
             VALUE "Comments", "http://code.google.com/p/po-localization/"
-            VALUE "CompanyName", "Nikolay Raspopov"
+            VALUE "CompanyName", "Raspopov"
             VALUE "FileDescription", "EXE to PO file converter"
-            VALUE "FileVersion", "1.0.0.3"
+            VALUE "FileVersion", "1.0.0.4"
             VALUE "InternalName", "exe2po"
-            VALUE "LegalCopyright", "Copyright (c) Nikolay Raspopov, 2011-2012."
+            VALUE "LegalCopyright", "Copyright © 2011-2015 Nikolay Raspopov"
             VALUE "OriginalFilename", "exe2po.exe"
             VALUE "ProductName", "Localization Library"
-            VALUE "ProductVersion", "1.0.0.3"
+            VALUE "ProductVersion", "1.0.0.4"
         END
     END
     BLOCK "VarFileInfo"

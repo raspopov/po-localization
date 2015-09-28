@@ -1,29 +1,37 @@
-//
-// exe2po.cpp
-//
-// EXE to PO file converter.
-// Copyright (c) Nikolay Raspopov, 2011-2015.
-// Web: https://sourceforge.net/projects/po-localization/
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License along
-// with this program; if not, write to the Free Software Foundation, Inc.,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
+/*
+This file is part of EXE to PO file converter (EXE2PO)
+https://sourceforge.net/projects/po-localization/
+
+Copyright (C) 2011-2015 Nikolay Raspopov <raspopov@cherubicsoft.com>
+
+This program is free software : you can redistribute it and / or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+( at your option ) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.If not, see < http://www.gnu.org/licenses/>.
+*/
 
 #include "stdafx.h"
 
 #define RT_DLGINIT	MAKEINTRESOURCE(0xf0)
 #define ORDINAL		0x80000000
+
+typedef struct
+{
+	CStringA sID;
+	CStringA sText;
+} Item;
+
+typedef CAtlList < Item* >	CItems;
+
+CItems g_Items;
 
 static const struct
 {
@@ -86,21 +94,86 @@ CStringA UTF8Encode(__in_bcount(nInput) LPCWSTR psInput, __in int nInput)
 	return strUTF8;
 }
 
-CStringA UTF8Encode(__in const CStringW& strInput)
+inline CStringA UTF8Encode(__in const CStringW& strInput)
 {
 	return UTF8Encode( strInput, strInput.GetLength() );
 }
 
-void OutputMsg(FILE* hFile, const CStringW& sString)
+inline CStringW Escape( CStringW sText )
 {
-	CStringA sString8 = UTF8Encode( sString );
-	sString8.Replace( "\"", "\\\"" );
-	sString8.Replace( "\t", "\\t" );
-	sString8.Replace( "\n", "\\n" );
-	fprintf( hFile, "msgid \"%s\"\nmsgstr \"\"\n\n", sString8 );
+	sText.Replace( L"\"", L"\\\"" );
+	sText.Replace( L"\t", L"\\t" );
+	sText.Replace( L"\n", L"\\n" );
+	sText.Remove( L'\r' );
+	return sText;
 }
 
-void Output(FILE* hFile, UINT dwID, HMENU hMenu, UINT& nPopup)
+inline CStringA Escape(CStringA sText)
+{
+	sText.Replace( "\"", "\\\"" );
+	sText.Replace( "\t", "\\t" );
+	sText.Replace( "\n", "\\n" );
+	sText.Remove( '\r' );
+	return sText;
+}
+
+void Add(LPCTSTR szID, LPCTSTR szText)
+{
+	CStringA sTextA = Escape( UTF8Encode( szText ) );
+
+	for ( POSITION pos = g_Items.GetHeadPosition(); pos; )
+	{
+		Item* item = g_Items.GetNext( pos );
+		if ( item->sText == sTextA )
+		{
+			// Duplicate text
+			item->sID += szID;
+			return;
+		}
+	}
+
+	POSITION posBefore = NULL;
+	for ( POSITION pos = g_Items.GetHeadPosition(); pos; )
+	{
+		POSITION posOrigin = pos;
+		const Item* item = g_Items.GetNext( pos );
+		if ( item->sText > sTextA )
+		{
+			posBefore = posOrigin;
+			break;
+		}
+	}
+
+	// New text
+	Item* item = new Item;
+	item->sID = szID;
+	item->sText = sTextA;
+	if ( posBefore )
+		g_Items.InsertBefore( posBefore, item );
+	else
+		g_Items.AddTail( item );
+}
+
+void Clear()
+{
+	for ( POSITION pos = g_Items.GetHeadPosition(); pos; )
+	{
+		delete g_Items.GetNext( pos );
+	}
+	g_Items.RemoveAll();
+}
+
+void OutputAll(FILE* hFile)
+{
+	for ( POSITION pos = g_Items.GetHeadPosition(); pos; )
+	{
+		const Item* item = g_Items.GetNext( pos );
+
+		fprintf( hFile, "%smsgid \"%s\"\nmsgstr \"\"\n\n", (LPCSTR)item->sID, (LPCSTR)item->sText );
+	}
+}
+
+void AddMenu(FILE* hFile, UINT dwID, HMENU hMenu, UINT& nPopup)
 {
 	int nCount = GetMenuItemCount( hMenu );
 	for ( int i = 0; i < nCount; ++i )
@@ -126,35 +199,33 @@ void Output(FILE* hFile, UINT dwID, HMENU hMenu, UINT& nPopup)
 		{
 			if ( mii.hSubMenu )
 			{
-				_ftprintf( stderr, _T("\tMENUPOPUP.%u.%u\n"), dwID, nPopup );
 				if ( mii.dwTypeData && *mii.dwTypeData )
 				{
-					fprintf( hFile, "#. Menu popup\n#: MENUPOPUP.%u.%u\n", dwID, nPopup );
-					OutputMsg( hFile, mii.dwTypeData );
+					_ftprintf( stderr, _T( "\tMENUPOPUP.%u.%u = \"%s\"\n" ), dwID, nPopup, (LPCTSTR)Escape( mii.dwTypeData ) );
+					CString sID;
+					sID.Format( _T("#: MENUPOPUP.%u.%u\n"), dwID, nPopup );
+					Add( sID, mii.dwTypeData );
 				}
+				else
+					_ftprintf( stderr, _T( "\tMENUPOPUP.%u.%u (empty)\n" ), dwID, nPopup );
 
 				nPopup++;
-				Output( hFile, dwID, mii.hSubMenu, nPopup );
+				AddMenu( hFile, dwID, mii.hSubMenu, nPopup );
 			}
 			else
 			{
-				_ftprintf( stderr, _T("\tMENUITEM.%u.%u\n"), dwID, mii.wID );
 				if ( mii.dwTypeData && *mii.dwTypeData )
 				{
-					fprintf( hFile, "#. Menu item\n#: MENUITEM.%u.%u\n", dwID, mii.wID );
-					OutputMsg( hFile, mii.dwTypeData );
+					_ftprintf( stderr, _T( "\tMENUITEM.%u.%u = \"%s\"\n" ), dwID, mii.wID, (LPCTSTR)Escape( mii.dwTypeData ) );
+					CString sID;
+					sID.Format( _T("#: MENUITEM.%u.%u\n"), dwID, mii.wID );
+					Add( sID, mii.dwTypeData );
 				}
+				else
+					_ftprintf( stderr, _T( "\tMENUITEM.%u.%u (empty)\n" ), dwID, mii.wID );
 			}
 		}
 	}
-}
-
-void Output(FILE* hFile, UINT dwID, LPCWSTR szBuf, int cchSize)
-{
-	CStringW sString;
-	sString.Append( szBuf, cchSize );
-	fprintf( hFile, "#. String resource\n#: STRING.%u\n", dwID );
-	OutputMsg( hFile, sString );
 }
 
 BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName, LONG_PTR lParam)
@@ -185,7 +256,7 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 			if ( HMENU hMenu = LoadMenu( hModule, lpszName ) )
 			{
 				UINT nPopup = 0;
-				Output( hFile, uID, hMenu, nPopup );
+				AddMenu( hFile, uID, hMenu, nPopup );
 
 				DestroyMenu( hMenu );
 			}
@@ -212,8 +283,19 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 
 									if ( dwStringID < 0xE000 )	// Skip system resources
 									{
-										Output( hFile, dwStringID, pwchCur, cchString );
+										if ( cchString )
+										{
+											CString sText( pwchCur, cchString );
+											_ftprintf( stderr, _T( "\tSTRING.%u = \"%s\"\n" ), dwStringID, (LPCTSTR)Escape( sText ) );
+											CString sID;
+											sID.Format( _T( "#: STRING.%u\n" ), dwStringID );
+											Add( sID, sText );
+										}
+										else
+											_ftprintf( stderr, _T( "\tSTRING.%u (empty)\n" ), dwStringID );
 									}
+									else
+										_ftprintf( stderr, _T( "\tSTRING.%u (system)\n" ), dwStringID );
 
 									pwchCur += cchString;
 								}
@@ -244,10 +326,13 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 
 							if ( *pw != 0 && *pw != 0xffff )
 							{
-								_ftprintf( stderr, _T("\tDIALOGCAPTION.%u\n"), uID );
-								fprintf( hFile, "#. Dialog caption\n#: DIALOGCAPTION.%u\n", uID );
-								OutputMsg( hFile, (LPCWSTR)pw );
+								_ftprintf( stderr, _T("\tDIALOGCAPTION.%u = \"%s\"\n"), uID, (LPCTSTR)Escape( (LPCTSTR)pw ) );
+								CString sID;
+								sID.Format( _T("#: DIALOGCAPTION.%u\n"), uID );
+								Add( sID, (LPCTSTR)pw );
 							}
+							else
+								_ftprintf( stderr, _T( "\tDIALOGCAPTION.%u (empty)\n" ), uID );
 
 							UINT i = 0;
 							DLGITEMTEMPLATE* pItem = _DialogSplitHelper::FindFirstDlgItem( pTemplate );
@@ -256,7 +341,6 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 							{
 								UINT wID = bDialogEx ? (WORD)((_DialogSplitHelper::DLGITEMTEMPLATEEX*)pItem)->id : pItem->id;
 
-								WORD* pw;
 								if ( bDialogEx )
 									pw = (WORD*)((_DialogSplitHelper::DLGITEMTEMPLATEEX*)pItem + 1);
 								else
@@ -293,14 +377,13 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 
 								if ( *pw != 0 && *pw != 0xffff )
 								{
-									_ftprintf( stderr, _T("\tDIALOGCONTROL.%u.%s.%u = \"%s\"\n"), uID, szClass, wID, (LPCWSTR)pw );
-									fprintf( hFile, "#. Dialog control\n#: DIALOGCONTROL.%u.%s.%u\n", uID, (LPCSTR)CW2A(szClass), wID );
-									OutputMsg( hFile, (LPCWSTR)pw );
+									_ftprintf( stderr, _T("\tDIALOGCONTROL.%u.%s.%u = \"%s\"\n"), uID, szClass, wID, (LPCTSTR)Escape( (LPCWSTR)pw ) );
+									CString sID;
+									sID.Format( _T("#: DIALOGCONTROL.%u.%s.%u\n"), uID, szClass, wID );
+									Add( sID, (LPCWSTR)pw );
 								}
 								else
-								{
 									_ftprintf( stderr, _T("\tDIALOGCONTROL.%u.%s.%u (empty)\n"), uID, szClass, wID );
-								}
 
 								pItem = _DialogSplitHelper::FindNextDlgItem( pItem, bDialogEx );
 							}
@@ -308,13 +391,33 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 						else if ( lpszType == RT_DLGINIT )
 						{
 							const char* p = (const char*)hData;
-							for (;;)
+							UINT nOrdinal = 1, nOldIDC = 0;
+							for ( ; ; )
 							{
 								const _DialogSplitHelper::DLGINITSTRUCT& pItem = *(const _DialogSplitHelper::DLGINITSTRUCT*)p;
 								if ( ! pItem.nIDC )
 									break;
-								_ftprintf( stderr, _T("\tDLGINIT.%u.%u=0x%04x %u \"%s\"\n"),
-									uID, pItem.nIDC, pItem.message, pItem.dwSize, (LPCTSTR)CA2T( p + sizeof( _DialogSplitHelper::DLGINITSTRUCT ) ) );
+								LPCSTR szData = p + sizeof( _DialogSplitHelper::DLGINITSTRUCT );
+								if ( pItem.dwSize && *szData )
+								{
+									const CStringA sTextA( szData, pItem.dwSize );
+									if ( pItem.message == 0x0403 )
+									{
+										if ( nOldIDC == pItem.nIDC )
+											++ nOrdinal;										
+										_ftprintf( stderr, _T( "\tDLGINIT.%u.%u.%u 0x%04x %u bytes = \"%s\"\n" ),
+											uID, pItem.nIDC, nOrdinal, pItem.message, pItem.dwSize, (LPCTSTR)CA2T( sTextA ) );
+										CString sID;
+										sID.Format( _T( "#: DLGINIT.%u.%u.%u\n" ), uID, pItem.nIDC, nOrdinal );
+										Add( sID, (LPCTSTR)CA2T( sTextA ) );
+										nOldIDC = pItem.nIDC;
+									}
+									else
+										_ftprintf( stderr, _T( "\tDLGINIT.%u.%u 0x%04x (ignored) = \"%s\"\n" ),
+											uID, pItem.nIDC, pItem.message, (LPCTSTR)CA2T( sTextA ) );
+								}
+								else
+									_ftprintf( stderr, _T( "\tDLGINIT.%u.%u 0x%04x (empty)\n" ), uID, pItem.nIDC, pItem.message );
 								p += pItem.dwSize + sizeof( _DialogSplitHelper::DLGINITSTRUCT );
 							}
 						}
@@ -328,14 +431,14 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 	return TRUE;
 }
 
-BOOL CALLBACK EnumResTypeProc(HMODULE hModule, LPTSTR lpszType, LONG lParam)
+BOOL CALLBACK EnumResTypeProc(HMODULE hModule, LPTSTR lpszType, LONG_PTR lParam)
 {
 	if ( IS_INTRESOURCE( lpszType ) )
 	{
 		if ( LPCTSTR szType = GetResType( lpszType ) )
 			_ftprintf( stderr, _T("\nResource type: %s\n"), szType );
 		else
-			_ftprintf( stderr, _T("\nResource type: %u\n"), (ULONG_PTR)lpszType );
+			_ftprintf( stderr, _T("\nResource type: %u\n"), (UINT)(ULONG_PTR)lpszType );
 	}
 	else
 	{
@@ -376,11 +479,12 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	FILE* hFile = NULL;
-	if ( _tfopen_s( &hFile, szDestination, _T("wb,ccs=UTF-8") ) == 0 )
+	if ( _tfopen_s( &hFile, szDestination, _T("wb,ccs=UTF-8") ) == 0 && hFile )
 	{
 		_ftprintf( stderr, _T("File: %s\n"), szSource );
 
-		fprintf( hFile, "msgid \"\"\n"
+		fprintf( hFile,
+			"msgid \"\"\n"
 			"msgstr \"\"\n"
 			"\"Project-Id-Version: %s\\n\"\n"
 			"\"POT-Creation-Date: \\n\"\n"
@@ -396,6 +500,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			// OK
 		}
+
+		OutputAll( hFile );
+
 		fclose( hFile );
 	}
 	else
@@ -404,6 +511,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		FreeLibrary( hExe );
 		return 1;
 	}
+
+	Clear();
 
 	FreeLibrary( hExe );
 

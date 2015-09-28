@@ -1,25 +1,22 @@
-//
-// Localization.cpp
-//
-// This file is part of Localization library.
-// Copyright (c) Nikolay Raspopov, 2011-2015.
-// E-mail: ryo.rabbit@gmail.com
-// Web: https://sourceforge.net/projects/po-localization/
-//
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 2.1 of the License, or (at your option) any later version.
-//
-// This library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public
-// License along with this library; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-//
+/*
+This file is part of Localization library
+https://sourceforge.net/projects/po-localization/
+
+Copyright (C) 2011-2015 Nikolay Raspopov <raspopov@cherubicsoft.com>
+
+This program is free software : you can redistribute it and / or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+( at your option ) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.If not, see < http://www.gnu.org/licenses/>.
+*/
 
 #include "Localization.h"
 
@@ -142,11 +139,10 @@ void CLocalization::Reload()
 CString CLocalization::LoadString(UINT nID) const
 {
 	CString sString;
-	if ( m_pStrings.Lookup( nID, sString ) )
+	if ( m_pStrings.Lookup( nID, sString ) || sString.LoadString( nID ) )
 		return sString;
-
-	sString.LoadString( nID );
-	return sString;
+	else
+		return CString();
 }
 
 BOOL CLocalization::Translate(HMENU hMenu, UINT nMenuID, UINT* pnOrdinal) const
@@ -200,7 +196,7 @@ void CLocalization::Translate(HWND hDialog, UINT nDialogID) const
 {
 	// Translate dialog caption
 	CString sItem;
-	if ( m_pDialogs.Lookup( ( nDialogID << 16 ), sItem ) )
+	if ( m_pDialogs.Lookup( ( (ULONGLONG)nDialogID << 16 ), sItem ) )
 	{
 		SetWindowText( hDialog, sItem );
 	}
@@ -209,14 +205,33 @@ void CLocalization::Translate(HWND hDialog, UINT nDialogID) const
 	UINT i = 0;
 	for ( HWND hChild = GetWindow( hDialog, GW_CHILD ); hChild; hChild = GetWindow( hChild, GW_HWNDNEXT ) )
 	{
-		if ( UINT nControlID = GetDlgCtrlID( hChild ) & 0xffff )
+		TCHAR szClass[ 3 ] = {};
+		GetClassName( hChild, szClass, 3 );
+
+		if ( ULONGLONG nControlID = GetDlgCtrlID( hChild ) & 0xffff )
 		{
 			if ( nControlID == 0xffff )
 				nControlID = ORDINAL | i++;
 
-			if ( m_pDialogs.Lookup( ( nDialogID << 16 ) | nControlID, sItem ) )
+			if ( m_pDialogs.Lookup( ( (ULONGLONG)nDialogID << 16 ) | nControlID, sItem ) )
 			{
 				SetWindowText( hChild, sItem );
+			}
+			else if ( szClass[ 0 ] == 'C' && szClass[ 1 ] ==  'o' )
+			{
+				// Combobox
+				BOOL bReset = FALSE;
+				for ( ULONGLONG nOrdinal = 1; ; ++ nOrdinal )
+				{
+					if ( ! m_pDialogs.Lookup( ( nOrdinal << 32 ) | ( (ULONGLONG)nDialogID << 16 ) | nControlID, sItem ) )
+						break;
+					if ( ! bReset )
+					{
+						bReset = TRUE;
+						ComboBox_ResetContent( hChild );
+					}
+					ComboBox_AddString( hChild, sItem );
+				}
 			}
 		}
 	}
@@ -225,98 +240,129 @@ void CLocalization::Translate(HWND hDialog, UINT nDialogID) const
 	UpdateWindow( hDialog );
 }
 
-BOOL CLocalization::Add(const CString& sRef, const CString& sTranslated)
+BOOL CLocalization::Add(const CAtlList< CString >& lRef, const CString& sTranslated)
 {
-	int nPos = 0;
-	CString sType = sRef.Tokenize( _T("."), nPos );
-	if ( sType.CompareNoCase( _T("STRING") ) == 0 )
+	BOOL bRet = FALSE;
+	for ( POSITION pos = lRef.GetHeadPosition() ; pos; )
 	{
-		// #: STRING.{string-id}
-		UINT nID = _tstol( sRef.Tokenize( _T("."), nPos ) );
-		if ( nID > 0 && nID < 65536 )
+		const CString& sMutiRef = lRef.GetNext( pos );
+
+		for ( int nRefPos = 0; ; )
 		{
-			m_pStrings.SetAt( nID, sTranslated );
-			return TRUE;
-		}
-		else
-			LOG( "CLocalization Error : Bad string ID: %s\n", (LPCSTR)CT2A( sRef ) );
-	}
-	else if ( sType.CompareNoCase( _T("MENUITEM") ) == 0 )
-	{
-		// #: MENUITEM.{menu-id}.{menu-item-id}
-		UINT nMenuID = _tstol( sRef.Tokenize( _T("."), nPos ) );
-		if ( nMenuID  > 0 && nMenuID < 32768 )
-		{
-			UINT nItemID = _tstol( sRef.Tokenize( _T("."), nPos ) );
-			if ( nItemID  > 0 && nItemID < 65536 )
+			const CString sRef = sMutiRef.Tokenize( _T( " " ), nRefPos );
+			if ( sRef.IsEmpty() )
+				break;
+
+			int nPos = 0;
+			CString sType = sRef.Tokenize( _T("."), nPos );
+			if ( sType.CompareNoCase( _T("STRING") ) == 0 )
 			{
-				m_pMenus.SetAt( ( nMenuID << 16 ) | nItemID, sTranslated );
-				return TRUE;
-			}
-			else
-				LOG( "CLocalization Error : Bad menu item ID: %s\n", (LPCSTR)CT2A( sRef ) );
-		}
-		else
-			LOG( "CLocalization Error : Bad menu ID: %s\n", (LPCSTR)CT2A( sRef ) );
-	}
-	else if ( sType.CompareNoCase( _T("MENUPOPUP") ) == 0 )
-	{
-		// #: MENUPOPUP.{menu-id}.{ordinal}
-		UINT nMenuID = _tstol( sRef.Tokenize( _T("."), nPos ) );
-		if ( nMenuID  > 0 && nMenuID < 32768 )
-		{
-			UINT nSubMenu = _tstol( sRef.Tokenize( _T("."), nPos ) );
-			if ( nSubMenu < 65536 )
-			{
-				m_pMenus.SetAt( ORDINAL | ( nMenuID << 16 ) | nSubMenu, sTranslated );
-				return TRUE;
-			}
-			else
-				LOG( "CLocalization Error : Bad menu popup ordinal: %s\n", (LPCSTR)CT2A( sRef ) );
-		}
-		else
-			LOG( "CLocalization Error : Bad menu ID: %s\n", (LPCSTR)CT2A( sRef ) );
-	}
-	else if ( sType.CompareNoCase( _T("DIALOGCAPTION") ) == 0 )
-	{
-		// #: DIALOGCAPTION.{dialog-id}
-		UINT nDialogID = _tstol( sRef.Tokenize( _T("."), nPos ) );
-		if ( nDialogID  > 0 && nDialogID < 65536 )
-		{
-			m_pDialogs.SetAt( ( nDialogID << 16 ), sTranslated );
-			return TRUE;
-		}
-		else
-			LOG( "CLocalization Error : Bad dialog ID: %s\n", (LPCSTR)CT2A( sRef ) );
-	}
-	else if ( sType.CompareNoCase( _T("DIALOGCONTROL") ) == 0 )
-	{
-		// #: DIALOGCONTROL.{dialog-id}.{control-class}.{dialog-control-id}
-		UINT nDialogID = _tstol( sRef.Tokenize( _T("."), nPos ) );
-		if ( nDialogID  > 0 && nDialogID < 65536 )
-		{
-			CString sClass = sRef.Tokenize( _T("."), nPos );
-			if ( ! sClass.IsEmpty() )
-			{
-				UINT nControlID = (UINT)_tstoi64( sRef.Tokenize( _T("."), nPos ) );
-				if ( ( nControlID & 0x7fffffff ) < 65536 )
+				// #: STRING.{string-id}
+				UINT nID = _tstol( sRef.Tokenize( _T("."), nPos ) );
+				if ( nID > 0 && nID < 65536 )
 				{
-					m_pDialogs.SetAt( ( nDialogID << 16 ) | nControlID, sTranslated );
-					return TRUE;
+					m_pStrings.SetAt( nID, sTranslated );
+					bRet = TRUE;
 				}
 				else
-					LOG( "CLocalization Error : Bad dialog control ID: %s\n", (LPCSTR)CT2A( sRef ) );
+					LOG( "CLocalization Error : Bad string ID: %s\n", (LPCSTR)CT2A( sRef ) );
+			}
+			else if ( sType.CompareNoCase( _T("MENUITEM") ) == 0 )
+			{
+				// #: MENUITEM.{menu-id}.{menu-item-id}
+				UINT nMenuID = _tstol( sRef.Tokenize( _T("."), nPos ) );
+				if ( nMenuID  > 0 && nMenuID < 32768 )
+				{
+					UINT nItemID = _tstol( sRef.Tokenize( _T("."), nPos ) );
+					if ( nItemID  > 0 && nItemID < 65536 )
+					{
+						m_pMenus.SetAt( ( nMenuID << 16 ) | nItemID, sTranslated );
+						bRet = TRUE;
+					}
+					else
+						LOG( "CLocalization Error : Bad menu item ID: %s\n", (LPCSTR)CT2A( sRef ) );
+				}
+				else
+					LOG( "CLocalization Error : Bad menu ID: %s\n", (LPCSTR)CT2A( sRef ) );
+			}
+			else if ( sType.CompareNoCase( _T("MENUPOPUP") ) == 0 )
+			{
+				// #: MENUPOPUP.{menu-id}.{ordinal}
+				UINT nMenuID = _tstol( sRef.Tokenize( _T("."), nPos ) );
+				if ( nMenuID  > 0 && nMenuID < 32768 )
+				{
+					UINT nSubMenu = _tstol( sRef.Tokenize( _T("."), nPos ) );
+					if ( nSubMenu < 65536 )
+					{
+						m_pMenus.SetAt( ORDINAL | ( nMenuID << 16 ) | nSubMenu, sTranslated );
+						bRet = TRUE;
+					}
+					else
+						LOG( "CLocalization Error : Bad menu popup ordinal: %s\n", (LPCSTR)CT2A( sRef ) );
+				}
+				else
+					LOG( "CLocalization Error : Bad menu ID: %s\n", (LPCSTR)CT2A( sRef ) );
+			}
+			else if ( sType.CompareNoCase( _T("DIALOGCAPTION") ) == 0 )
+			{
+				// #: DIALOGCAPTION.{dialog-id}
+				UINT nDialogID = _tstol( sRef.Tokenize( _T("."), nPos ) );
+				if ( nDialogID  > 0 && nDialogID < 65536 )
+				{
+					m_pDialogs.SetAt( ( (ULONGLONG)nDialogID << 16 ), sTranslated );
+					bRet = TRUE;
+				}
+				else
+					LOG( "CLocalization Error : Bad dialog ID: %s\n", (LPCSTR)CT2A( sRef ) );
+			}
+			else if ( sType.CompareNoCase( _T("DIALOGCONTROL") ) == 0 )
+			{
+				// #: DIALOGCONTROL.{dialog-id}.{control-class}.{dialog-control-id}
+				ULONGLONG nDialogID = _tstol( sRef.Tokenize( _T("."), nPos ) );
+				if ( nDialogID  > 0 && nDialogID < 65536 )
+				{
+					CString sClass = sRef.Tokenize( _T("."), nPos );
+					if ( ! sClass.IsEmpty() )
+					{
+						ULONGLONG nControlID = (ULONGLONG)_tstoi64( sRef.Tokenize( _T("."), nPos ) );
+						if ( ( nControlID & 0x7fffffff ) < 65536 )
+						{
+							m_pDialogs.SetAt( ( nDialogID << 16 ) | nControlID, sTranslated );
+							bRet = TRUE;
+						}
+						else
+							LOG( "CLocalization Error : Bad dialog control ID: %s\n", (LPCSTR)CT2A( sRef ) );
+					}
+					else
+						LOG( "CLocalization Error : Bad dialog control class: %s\n", (LPCSTR)CT2A( sRef ) );
+				}
+				else
+					LOG( "CLocalization Error : Bad dialog ID: %s\n", (LPCSTR)CT2A( sRef ) );
+			}
+			else if ( sType.CompareNoCase( _T( "DLGINIT" ) ) == 0 )
+			{
+				// #: DLGINIT.{dialog-id}.{dialog-control-id}.{ordinal}
+				ULONGLONG nDialogID = _tstol( sRef.Tokenize( _T( "." ), nPos ) );
+				if ( nDialogID > 0 && nDialogID < 65536 )
+				{
+					ULONGLONG nControlID = (ULONGLONG)_tstoi64( sRef.Tokenize( _T( "." ), nPos ) );
+					if ( ( nControlID & 0x7fffffff ) < 65536 )
+					{
+						ULONGLONG nOrdinal = (UINT)_tstoi64( sRef.Tokenize( _T( "." ), nPos ) );
+						m_pDialogs.SetAt( ( nOrdinal << 32 ) | ( nDialogID << 16 ) | nControlID, sTranslated );
+						bRet = TRUE;
+					}
+					else
+						LOG( "CLocalization Error : Bad dialog control ID: %s\n", (LPCSTR)CT2A( sRef ) );
+				}
+				else
+					LOG( "CLocalization Error : Bad dialog ID: %s\n", (LPCSTR)CT2A( sRef ) );
 			}
 			else
-				LOG( "CLocalization Error : Bad dialog control class: %s\n", (LPCSTR)CT2A( sRef ) );
+				LOG( "CLocalization Error : Unknown reference token: %s\n", (LPCSTR)CT2A( sRef ) );
 		}
-		else
-			LOG( "CLocalization Error : Bad dialog ID: %s\n", (LPCSTR)CT2A( sRef ) );
 	}
-	else
-		LOG( "CLocalization Error : Unknown reference token: %s\n", (LPCSTR)CT2A( sRef ) );
-
-	return FALSE;
+	return bRet;
 }
 
 BOOL CLocalization::Load(LPCTSTR szModule)
@@ -411,7 +457,7 @@ void CLocalization::FillComboBox(HWND hwndCombo) const
 	for( POSITION pos = GetStartPosition(); pos; )
 	{
 		LANGID nID = GetNext( pos );
-		int index = ComboBox_AddString( hwndCombo, GetLangName( nID ) );
+		index = ComboBox_AddString( hwndCombo, GetLangName( nID ) );
 		ComboBox_SetItemData( hwndCombo, index, nID );
 		if ( nID == m_nLangID )
 			ComboBox_SetCurSel( hwndCombo, index );
@@ -663,8 +709,8 @@ BOOL CLocalization::LoadPoFromString(LANGID nLangID, const CStringA& sContent)
 
 	m_nLangID = nLangID;
 
-	CString sRef;			// #:
-	CString sID;			// msgid
+	CAtlList< CString > lRef;	// #:
+	CString sID;				// msgid
 
 	CStringA sString, sOriginalLine;
 	enum
@@ -693,17 +739,22 @@ BOOL CLocalization::LoadPoFromString(LANGID nLangID, const CStringA& sContent)
 			if ( sLine[ 1 ] == ':' )
 			{
 				// Ref
-				if ( mode == mode_msgstr )
+				switch ( mode )
 				{
+				case mode_msgstr:
 					// Save previous string
-					if ( ! sRef.IsEmpty() && ! sString.IsEmpty() )
-						Add( sRef, Decode( sString ) );
-
+					if ( ! lRef.IsEmpty() && ! sString.IsEmpty() )
+						Add( lRef, Decode( sString ) );
 					sString.Empty();
-					sRef.Empty();
+					lRef.RemoveAll();
 					sID.Empty();
-
 					mode = mode_ref;
+					break;
+
+				case mode_ref:
+					lRef.AddTail( CString( sString.Trim() ) );
+					sString.Empty();
+					break;
 				}
 
 				if ( ! sString.IsEmpty() )
@@ -713,32 +764,21 @@ BOOL CLocalization::LoadPoFromString(LANGID nLangID, const CStringA& sContent)
 			// else Comments
 			break;
 
+		case 'M':
 		case 'm':
-			if ( sLine.Mid( 0, 7 ) == "msgid \"" )
+			if ( ( mode == mode_start || mode == mode_ref ) && _strnicmp( sLine, "msgid \"", 7 ) == 0 )
 			{
 				// ID
-				if ( mode != mode_start && mode != mode_ref )
-				{
-					LOG( "CLocalization Error : Invalid .po-line #%d: %s\n", nLine, sOriginalLine );
-					bRet = FALSE;
-					break;
-				}
-
-				sRef = sString.Trim();
-
+				lRef.AddTail( CString( sString.Trim() ) );
 				sString.Empty();
 
 				sLine = sLine.Mid( 6, sLine.GetLength() - 6 );
 				mode = mode_msgid;
 			}
-			else if ( sLine.Mid( 0, 8 ) == "msgstr \"" )
+			else if ( mode == mode_msgid && _strnicmp( sLine, "msgstr \"", 8 ) == 0 )
 			{
 				// Translation
-				if ( mode != mode_msgid )
-					sRef = sString.Trim();
-				else
-					sID = Decode( sString );
-
+				sID = Decode( sString );
 				sString.Empty();
 
 				sLine = sLine.Mid( 7, sLine.GetLength() - 7 );
@@ -793,8 +833,8 @@ BOOL CLocalization::LoadPoFromString(LANGID nLangID, const CStringA& sContent)
 	if ( bRet )
 	{
 		// Save last string
-		if ( ! sRef.IsEmpty() && ! sString.IsEmpty() )
-			Add( sRef, Decode( sString ) );
+		if ( ! lRef.IsEmpty() && ! sString.IsEmpty() )
+			Add( lRef, Decode( sString ) );
 	}
 	else
 	{
