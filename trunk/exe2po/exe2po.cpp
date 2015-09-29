@@ -20,7 +20,9 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 
 #include "stdafx.h"
 
-#define RT_DLGINIT	MAKEINTRESOURCE(0xf0)
+#define RT_DLGINIT  MAKEINTRESOURCE(240)
+#define RT_TOOLBAR  MAKEINTRESOURCE(241)
+
 #define ORDINAL		0x80000000
 
 typedef struct
@@ -30,8 +32,6 @@ typedef struct
 } Item;
 
 typedef CAtlList < Item* >	CItems;
-
-CItems g_Items;
 
 static const struct
 {
@@ -62,10 +62,11 @@ StandardResTypes[] =
 	{ _T("RT_HTML"),		RT_HTML },
 	{ _T("RT_MANIFEST"),	RT_MANIFEST },
 	{ _T("RT_DLGINIT"),		RT_DLGINIT },
+	{ _T("RT_TOOLBAR"),		RT_TOOLBAR },
 	{ NULL,					NULL }
 };
 
-LPCTSTR GetResType(LPTSTR szType)
+inline LPCTSTR GetResType(LPTSTR szType)
 {
 	for ( int i = 0; StandardResTypes[ i ].szName; ++i )
 	{
@@ -99,7 +100,7 @@ inline CStringA UTF8Encode(__in const CStringW& strInput)
 	return UTF8Encode( strInput, strInput.GetLength() );
 }
 
-inline CStringW Escape( CStringW sText )
+inline CStringW Escape(CStringW sText)
 {
 	sText.Replace( L"\"", L"\\\"" );
 	sText.Replace( L"\t", L"\\t" );
@@ -117,13 +118,26 @@ inline CStringA Escape(CStringA sText)
 	return sText;
 }
 
-void Add(LPCTSTR szID, LPCTSTR szText)
+inline bool IsGood(LPCTSTR szText)
+{
+	if ( szText )
+	{
+		for ( LPCTSTR p = szText; *p; ++ p )
+		{
+			if ( _istalpha( *p ) )
+				return true;
+		}
+	}
+	return false;
+}
+
+void Add(CItems& pItems, LPCTSTR szID, LPCTSTR szText)
 {
 	CStringA sTextA = Escape( UTF8Encode( szText ) );
 
-	for ( POSITION pos = g_Items.GetHeadPosition(); pos; )
+	for ( POSITION pos = pItems.GetHeadPosition(); pos; )
 	{
-		Item* item = g_Items.GetNext( pos );
+		Item* item = pItems.GetNext( pos );
 		if ( item->sText == sTextA )
 		{
 			// Duplicate text
@@ -132,48 +146,45 @@ void Add(LPCTSTR szID, LPCTSTR szText)
 		}
 	}
 
-	POSITION posBefore = NULL;
-	for ( POSITION pos = g_Items.GetHeadPosition(); pos; )
+	// New text
+	Item* new_item = new Item;
+	new_item->sID = szID;
+	new_item->sText = sTextA;
+
+	// Sort by ID
+	for ( POSITION pos = pItems.GetHeadPosition(); pos; )
 	{
 		POSITION posOrigin = pos;
-		const Item* item = g_Items.GetNext( pos );
-		if ( item->sText > sTextA )
+		const Item* item = pItems.GetNext( pos );
+		if ( item->sID > new_item->sID )
 		{
-			posBefore = posOrigin;
-			break;
+			pItems.InsertBefore( posOrigin, new_item );
+			return;
 		}
 	}
-
-	// New text
-	Item* item = new Item;
-	item->sID = szID;
-	item->sText = sTextA;
-	if ( posBefore )
-		g_Items.InsertBefore( posBefore, item );
-	else
-		g_Items.AddTail( item );
+	pItems.AddTail( new_item );
 }
 
-void Clear()
+void Clear(CItems& pItems)
 {
-	for ( POSITION pos = g_Items.GetHeadPosition(); pos; )
+	for ( POSITION pos = pItems.GetHeadPosition(); pos; )
 	{
-		delete g_Items.GetNext( pos );
+		delete pItems.GetNext( pos );
 	}
-	g_Items.RemoveAll();
+	pItems.RemoveAll();
 }
 
-void OutputAll(FILE* hFile)
+void OutputAll(const CItems& pItems, FILE* hFile)
 {
-	for ( POSITION pos = g_Items.GetHeadPosition(); pos; )
+	for ( POSITION pos = pItems.GetHeadPosition(); pos; )
 	{
-		const Item* item = g_Items.GetNext( pos );
+		const Item* item = pItems.GetNext( pos );
 
 		fprintf( hFile, "%smsgid \"%s\"\nmsgstr \"\"\n\n", (LPCSTR)item->sID, (LPCSTR)item->sText );
 	}
 }
 
-void AddMenu(FILE* hFile, UINT dwID, HMENU hMenu, UINT& nPopup)
+void AddMenu(CItems& pItems, UINT dwID, HMENU hMenu, UINT& nPopup)
 {
 	int nCount = GetMenuItemCount( hMenu );
 	for ( int i = 0; i < nCount; ++i )
@@ -199,30 +210,30 @@ void AddMenu(FILE* hFile, UINT dwID, HMENU hMenu, UINT& nPopup)
 		{
 			if ( mii.hSubMenu )
 			{
-				if ( mii.dwTypeData && *mii.dwTypeData )
+				if ( IsGood( mii.dwTypeData ) )
 				{
-					_ftprintf( stderr, _T( "\tMENUPOPUP.%u.%u = \"%s\"\n" ), dwID, nPopup, (LPCTSTR)Escape( mii.dwTypeData ) );
+					printf( "\tMENUPOPUP.%u.%u = \"%s\"\n", dwID, nPopup, (LPCSTR)CT2A( (LPCTSTR)Escape( mii.dwTypeData ) ) );
 					CString sID;
 					sID.Format( _T("#: MENUPOPUP.%u.%u\n"), dwID, nPopup );
-					Add( sID, mii.dwTypeData );
+					Add( pItems, sID, mii.dwTypeData );
 				}
 				else
-					_ftprintf( stderr, _T( "\tMENUPOPUP.%u.%u (empty)\n" ), dwID, nPopup );
+					printf( "\tMENUPOPUP.%u.%u (ignored)\n", dwID, nPopup );
 
 				nPopup++;
-				AddMenu( hFile, dwID, mii.hSubMenu, nPopup );
+				AddMenu( pItems, dwID, mii.hSubMenu, nPopup );
 			}
 			else
 			{
-				if ( mii.dwTypeData && *mii.dwTypeData )
+				if ( IsGood( mii.dwTypeData ) )
 				{
-					_ftprintf( stderr, _T( "\tMENUITEM.%u.%u = \"%s\"\n" ), dwID, mii.wID, (LPCTSTR)Escape( mii.dwTypeData ) );
+					printf( "\tMENUITEM.%u.%u = \"%s\"\n", dwID, mii.wID, (LPCSTR)CT2A( (LPCTSTR)Escape( mii.dwTypeData ) ) );
 					CString sID;
 					sID.Format( _T("#: MENUITEM.%u.%u\n"), dwID, mii.wID );
-					Add( sID, mii.dwTypeData );
+					Add( pItems, sID, mii.dwTypeData );
 				}
 				else
-					_ftprintf( stderr, _T( "\tMENUITEM.%u.%u (empty)\n" ), dwID, mii.wID );
+					printf( "\tMENUITEM.%u.%u (ignored)\n", dwID, mii.wID );
 			}
 		}
 	}
@@ -230,23 +241,23 @@ void AddMenu(FILE* hFile, UINT dwID, HMENU hMenu, UINT& nPopup)
 
 BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName, LONG_PTR lParam)
 {
-	FILE* hFile = (FILE*)lParam;
+	CItems& pItems = *(CItems*)lParam;
 	UINT uID = 0;
 
 	if ( IS_INTRESOURCE( lpszName ) )
 	{
 		uID = (UINT)(ULONG_PTR)lpszName;
-		_ftprintf( stderr, _T("ID = %u\n"), uID );
+		printf( "ID = %u\n", uID );
 	}
 	else
 	{
 		if ( lpszName[ 0 ] == _T('#') )
 		{
 			uID = _tstol( &lpszName[ 1 ] );
-			_ftprintf( stderr, _T("ID = #%u\n"), uID );
+			printf( "ID = #%u\n", uID );
 		}
 		else
-			_ftprintf( stderr, _T("ID = \"%s\"\n"), lpszName );
+			printf( "ID = \"%s\"\n", (LPCSTR)CT2A( lpszName ) );
 	}
 
 	if ( IS_INTRESOURCE( lpszType ) )
@@ -256,7 +267,7 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 			if ( HMENU hMenu = LoadMenu( hModule, lpszName ) )
 			{
 				UINT nPopup = 0;
-				AddMenu( hFile, uID, hMenu, nPopup );
+				AddMenu( pItems, uID, hMenu, nPopup );
 
 				DestroyMenu( hMenu );
 			}
@@ -281,21 +292,21 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 								{
 									int cchString = *pwchCur++;  // String size in characters.
 
-									if ( dwStringID < 0xE000 )	// Skip system resources
+									const CString sText( pwchCur, cchString );
+									if ( cchString && IsGood( sText ) )
 									{
-										if ( cchString )
+										if ( dwStringID < 0xE000 )	// Skip system resources
 										{
-											CString sText( pwchCur, cchString );
-											_ftprintf( stderr, _T( "\tSTRING.%u = \"%s\"\n" ), dwStringID, (LPCTSTR)Escape( sText ) );
+											printf( "\tSTRING.%u = \"%s\"\n", dwStringID, (LPCSTR)CT2A( (LPCTSTR)Escape( sText ) ) );
 											CString sID;
-											sID.Format( _T( "#: STRING.%u\n" ), dwStringID );
-											Add( sID, sText );
+											sID.Format( _T("#: STRING.%u\n"), dwStringID );
+											Add( pItems, sID, sText );
 										}
 										else
-											_ftprintf( stderr, _T( "\tSTRING.%u (empty)\n" ), dwStringID );
+											printf( "\tSTRING.%u (system ignored) = \"%s\"\n", dwStringID, (LPCSTR)CT2A( (LPCTSTR)Escape( sText ) ) );
 									}
 									else
-										_ftprintf( stderr, _T( "\tSTRING.%u (system)\n" ), dwStringID );
+										printf( "\tSTRING.%u (ignored)\n", dwStringID );
 
 									pwchCur += cchString;
 								}
@@ -324,15 +335,15 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 							else
 								while (*pw++);			// Either No class, or string, skip past terminating NULL
 
-							if ( *pw != 0 && *pw != 0xffff )
+							if ( *pw != 0xffff && IsGood( (LPCWSTR)pw ) )
 							{
-								_ftprintf( stderr, _T("\tDIALOGCAPTION.%u = \"%s\"\n"), uID, (LPCTSTR)Escape( (LPCTSTR)pw ) );
+								printf( "\tDIALOGCAPTION.%u = \"%s\"\n", uID, (LPCSTR)CT2A( (LPCTSTR)Escape( (LPCWSTR)pw ) ) );
 								CString sID;
 								sID.Format( _T("#: DIALOGCAPTION.%u\n"), uID );
-								Add( sID, (LPCTSTR)pw );
+								Add( pItems, sID, (LPCWSTR)pw );
 							}
 							else
-								_ftprintf( stderr, _T( "\tDIALOGCAPTION.%u (empty)\n" ), uID );
+								printf( "\tDIALOGCAPTION.%u (ignored)\n", uID );
 
 							UINT i = 0;
 							DLGITEMTEMPLATE* pItem = _DialogSplitHelper::FindFirstDlgItem( pTemplate );
@@ -346,17 +357,18 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 								else
 									pw = (WORD*)(pItem + 1);
 
-								LPCWSTR szClass = L"";
+								BOOL bUse = FALSE;
+								LPCWSTR szClass = L"?";
 								if ( *pw == 0xFFFF )			// Skip class name ordinal or string
 								{
 									switch ( *++pw )
 									{
 									case 0x0080:
-										szClass = L"Button"; break;
+										szClass = L"Button"; bUse = TRUE; break;
 									case 0x0081:
 										szClass = L"Edit"; break;
 									case 0x0082:
-										szClass = L"Static"; break;
+										szClass = L"Static"; bUse = TRUE; break;
 									case 0x0083:
 										szClass = L"ListBox"; break;
 									case 0x0084:
@@ -370,20 +382,24 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 								{
 									szClass = (LPCWSTR)pw;
 									while (*pw++);
+
+									bUse =	( _tcsicmp( szClass, _T("SysLink") ) == 0 ) ||
+											( _tcsicmp( szClass, _T("MfcLink") ) == 0 );
 								}
 
 								if ( wID == 0xffff )
 									wID = ORDINAL | i++;
 
-								if ( *pw != 0 && *pw != 0xffff )
+								if ( bUse && *pw != 0xffff && IsGood( (LPCWSTR)pw ) )
 								{
-									_ftprintf( stderr, _T("\tDIALOGCONTROL.%u.%s.%u = \"%s\"\n"), uID, szClass, wID, (LPCTSTR)Escape( (LPCWSTR)pw ) );
+									printf( "\tDIALOGCONTROL.%u.%s.%u = \"%s\"\n",
+										uID, (LPCSTR)CT2A( szClass ), wID, (LPCSTR)CT2A( (LPCTSTR)Escape( (LPCWSTR)pw ) ) );
 									CString sID;
 									sID.Format( _T("#: DIALOGCONTROL.%u.%s.%u\n"), uID, szClass, wID );
-									Add( sID, (LPCWSTR)pw );
+									Add( pItems, sID, (LPCWSTR)pw );
 								}
 								else
-									_ftprintf( stderr, _T("\tDIALOGCONTROL.%u.%s.%u (empty)\n"), uID, szClass, wID );
+									printf( "\tDIALOGCONTROL.%u.%s.%u (ignored)\n", uID, (LPCSTR)CT2A( szClass ), wID );
 
 								pItem = _DialogSplitHelper::FindNextDlgItem( pItem, bDialogEx );
 							}
@@ -391,33 +407,32 @@ BOOL CALLBACK EnumResNameProc(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName
 						else if ( lpszType == RT_DLGINIT )
 						{
 							const char* p = (const char*)hData;
-							UINT nOrdinal = 1, nOldIDC = 0;
+							UINT nOrdinal = 0, nOldIDC = 0;
 							for ( ; ; )
 							{
 								const _DialogSplitHelper::DLGINITSTRUCT& pItem = *(const _DialogSplitHelper::DLGINITSTRUCT*)p;
 								if ( ! pItem.nIDC )
 									break;
 								LPCSTR szData = p + sizeof( _DialogSplitHelper::DLGINITSTRUCT );
-								if ( pItem.dwSize && *szData )
+
+								if ( nOldIDC == pItem.nIDC )
+									++ nOrdinal;
+								else
+									nOrdinal = 0;
+								nOldIDC = pItem.nIDC;
+
+								const CString sText = (LPCTSTR)CA2T( CStringA( szData, pItem.dwSize ) );
+								if ( pItem.message == 0x0403 && IsGood( sText ) )
 								{
-									const CStringA sTextA( szData, pItem.dwSize );
-									if ( pItem.message == 0x0403 )
-									{
-										if ( nOldIDC == pItem.nIDC )
-											++ nOrdinal;										
-										_ftprintf( stderr, _T( "\tDLGINIT.%u.%u.%u 0x%04x %u bytes = \"%s\"\n" ),
-											uID, pItem.nIDC, nOrdinal, pItem.message, pItem.dwSize, (LPCTSTR)CA2T( sTextA ) );
-										CString sID;
-										sID.Format( _T( "#: DLGINIT.%u.%u.%u\n" ), uID, pItem.nIDC, nOrdinal );
-										Add( sID, (LPCTSTR)CA2T( sTextA ) );
-										nOldIDC = pItem.nIDC;
-									}
-									else
-										_ftprintf( stderr, _T( "\tDLGINIT.%u.%u 0x%04x (ignored) = \"%s\"\n" ),
-											uID, pItem.nIDC, pItem.message, (LPCTSTR)CA2T( sTextA ) );
+									printf( "\tDLGINIT.%u.%u.%u 0x%04x %2u bytes = \"%s\"\n",
+										uID, pItem.nIDC, nOrdinal, pItem.message, pItem.dwSize, (LPCSTR)CT2A( (LPCTSTR)Escape( sText ) ) );
+									CString sID;
+									sID.Format( _T( "#: DLGINIT.%u.%u.%u\n" ), uID, pItem.nIDC, nOrdinal );
+									Add( pItems, sID, sText );
 								}
 								else
-									_ftprintf( stderr, _T( "\tDLGINIT.%u.%u 0x%04x (empty)\n" ), uID, pItem.nIDC, pItem.message );
+									printf( "\tDLGINIT.%u.%u 0x%04x (ignored)\n", uID, pItem.nIDC, pItem.message );
+
 								p += pItem.dwSize + sizeof( _DialogSplitHelper::DLGINITSTRUCT );
 							}
 						}
@@ -436,16 +451,16 @@ BOOL CALLBACK EnumResTypeProc(HMODULE hModule, LPTSTR lpszType, LONG_PTR lParam)
 	if ( IS_INTRESOURCE( lpszType ) )
 	{
 		if ( LPCTSTR szType = GetResType( lpszType ) )
-			_ftprintf( stderr, _T("\nResource type: %s\n"), szType );
+			printf( "\nResource type: %s\n", (LPCSTR)CT2A( szType ) );
 		else
-			_ftprintf( stderr, _T("\nResource type: %u\n"), (UINT)(ULONG_PTR)lpszType );
+			printf( "\nResource type: %u\n", (UINT)(ULONG_PTR)lpszType );
 	}
 	else
 	{
 		if ( lpszType[ 0 ] == _T('#') )
-			_ftprintf( stderr, _T("\nResource type: #%d\n"), _tstol( &lpszType[ 1 ] ) );
+			printf( "\nResource type: #%d\n", _tstol( &lpszType[ 1 ] ) );
 		else
-			_ftprintf( stderr, _T("\nResource type: \"%s\"\n"), lpszType );
+			printf( "\nResource type: \"%s\"\n", (LPCSTR)CT2A( lpszType ) );
 	}
 
 	return EnumResourceNames( hModule, lpszType, EnumResNameProc, lParam );
@@ -453,9 +468,11 @@ BOOL CALLBACK EnumResTypeProc(HMODULE hModule, LPTSTR lpszType, LONG_PTR lParam)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	SetConsoleOutputCP( GetACP() );
+
 	if ( argc < 2 )
 	{
-		_ftprintf( stderr, _T("Usage: %s {input file.exe} {output file.po}\n"), PathFindFileName( argv[ 0 ] ) );
+		printf( "Usage: %s {input file.exe} {output file.pot}\n", (LPCSTR)CT2A( PathFindFileName( argv[ 0 ] ) ) );
 		return 1;
 	}
 
@@ -465,7 +482,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	if ( argc < 3 )
 	{
 		sDest = szSource;
-		sDest += _T(".xxxx.po");
+		sDest += _T(".xxxx.pot");
 		szDestination = sDest;
 	}
 	else
@@ -474,14 +491,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	HMODULE hExe = LoadLibraryEx( szSource, NULL, LOAD_LIBRARY_AS_DATAFILE );
 	if ( ! hExe )
 	{
-		_ftprintf( stderr, _T("Can't load input file: %s\n"), szSource );
+		printf( "Can't load input file: %s\n", (LPCSTR)CT2A( szSource ) );
 		return 1;
 	}
 
 	FILE* hFile = NULL;
 	if ( _tfopen_s( &hFile, szDestination, _T("wb,ccs=UTF-8") ) == 0 && hFile )
 	{
-		_ftprintf( stderr, _T("File: %s\n"), szSource );
+		printf( "File: %s\n", (LPCSTR)CT2A( szSource ) );
 
 		fprintf( hFile,
 			"msgid \"\"\n"
@@ -496,23 +513,24 @@ int _tmain(int argc, _TCHAR* argv[])
 			"\"Content-Transfer-Encoding: 8bit\\n\"\n\n",
 			(LPCSTR)UTF8Encode( CString( PathFindFileName( szSource ) ) ) );
 
-		if ( EnumResourceTypes( hExe, EnumResTypeProc, (LONG_PTR)hFile ) )
+		CItems pItems;
+		if ( EnumResourceTypes( hExe, EnumResTypeProc, (LONG_PTR)&pItems ) )
 		{
 			// OK
 		}
 
-		OutputAll( hFile );
+		OutputAll( pItems, hFile );
+
+		Clear( pItems );
 
 		fclose( hFile );
 	}
 	else
 	{
-		_ftprintf( stderr, _T("Can't create output file: %s\n"), szDestination );
+		printf( "Can't create output file: %s\n", (LPCSTR)CT2A( szDestination ) );
 		FreeLibrary( hExe );
 		return 1;
 	}
-
-	Clear();
 
 	FreeLibrary( hExe );
 
