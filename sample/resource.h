@@ -12,9 +12,12 @@
 #define IDC_RADIO2                      1003
 #define IDC_COMBO1                      1004
 #define IDC_LANGS                       1005
+#define IDC_COMBO2                      1006
 #define IDC_EDIT2                       1007
 #define IDC_HOTKEY1                     1010
 #define IDC_SYSLINK1                    1011
+#define IDC_MFCLINK1                    1012
+#define IDC_COMMAND1                    1013
 #define ID_MENUITEM1                    32773
 #define ID_MENUITEM2                    32774
 #define ID_MENUITEM3                    32775
@@ -28,7 +31,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        134
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1012
+#define _APS_NEXT_CONTROL_VALUE         1015
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

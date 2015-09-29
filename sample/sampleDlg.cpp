@@ -39,6 +39,7 @@ void CSampleDlg::DoDataExchange(CDataExchange* pDX)
 
 	DDX_Text(pDX, IDC_EDIT2, m_sEdit);
 	DDX_CBIndex(pDX, IDC_COMBO1, m_nCombo);
+	DDX_CBIndex(pDX, IDC_COMBO2, m_nCombo);
 	DDX_Control(pDX, IDC_LANGS, m_pLangs);
 }
 

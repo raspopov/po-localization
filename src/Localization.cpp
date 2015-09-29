@@ -220,17 +220,14 @@ void CLocalization::Translate(HWND hDialog, UINT nDialogID) const
 			else if ( szClass[ 0 ] == 'C' && szClass[ 1 ] ==  'o' )
 			{
 				// Combobox
-				BOOL bReset = FALSE;
-				for ( ULONGLONG nOrdinal = 1; ; ++ nOrdinal )
+				const int nCount = ComboBox_GetCount( hChild );
+				for ( int n = 0; n < nCount; ++ n )
 				{
-					if ( ! m_pDialogs.Lookup( ( nOrdinal << 32 ) | ( (ULONGLONG)nDialogID << 16 ) | nControlID, sItem ) )
-						break;
-					if ( ! bReset )
+					if ( m_pDialogs.Lookup( ( (ULONGLONG)( n + 1 ) << 32 ) | ( (ULONGLONG)nDialogID << 16 ) | nControlID, sItem ) )
 					{
-						bReset = TRUE;
-						ComboBox_ResetContent( hChild );
+						ComboBox_DeleteString( hChild, n );
+						ComboBox_InsertString( hChild, n, sItem );
 					}
-					ComboBox_AddString( hChild, sItem );
 				}
 			}
 		}
@@ -349,7 +346,7 @@ BOOL CLocalization::Add(const CAtlList< CString >& lRef, const CString& sTransla
 					if ( ( nControlID & 0x7fffffff ) < 65536 )
 					{
 						ULONGLONG nOrdinal = (UINT)_tstoi64( sRef.Tokenize( _T( "." ), nPos ) );
-						m_pDialogs.SetAt( ( nOrdinal << 32 ) | ( nDialogID << 16 ) | nControlID, sTranslated );
+						m_pDialogs.SetAt( ( ( nOrdinal + 1 ) << 32 ) | ( nDialogID << 16 ) | nControlID, sTranslated );
 						bRet = TRUE;
 					}
 					else
