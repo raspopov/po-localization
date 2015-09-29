@@ -41,8 +41,28 @@ BOOL CSampleApp::InitInstance()
 
 	SetRegistryKey( _T("Localization") );
 
-	m_pLoc.Load();		// Load all translations
-	m_pLoc.Select();	// Select user language
+	// Parse command-line options
+	LANGID nLang = 0;
+	int nArgs = 0;
+	if ( LPWSTR* szArglist = CommandLineToArgvW( GetCommandLineW(), &nArgs ) )
+	{
+		for ( int i = 0; i < nArgs; ++i )
+		{
+			// Option: -lang:XX, where XX - hexadecimal language code ( 09 - English, 19 - Russian etc.)
+			if ( _tcsnicmp( szArglist[ i ], _T( "-lang:" ), 6 ) == 0|| _tcsnicmp( szArglist[ i ], _T( "/lang:" ), 6 ) == 0 )
+			{
+				int lang;
+				if ( _stscanf_s( szArglist[ i ] + 6, _T( "%x" ), &lang ) == 1 )
+				{
+					nLang = (LANGID)lang;
+				}
+			}
+		}
+		LocalFree( szArglist );
+	}
+
+	m_pLoc.Load();			// Load all translations
+	m_pLoc.Select( nLang );	// Select initial user language
 
 	for (;;)
 	{
