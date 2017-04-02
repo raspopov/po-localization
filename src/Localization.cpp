@@ -729,7 +729,7 @@ BOOL CLocalization::LoadPoFromString(LANGID nLangID, const CStringA& sContent)
 		case '#':
 			if ( mode != mode_ref && mode != mode_start && mode != mode_msgstr )
 			{
-				LOG( "CLocalization Error : Invalid .po-line #%d: %s\n", nLine, sOriginalLine );
+				LOG( "CLocalization Error : Invalid .po-line #%d: %s\n", nLine, (LPCSTR)sOriginalLine );
 				bRet = FALSE;
 				break;
 			}
@@ -784,7 +784,7 @@ BOOL CLocalization::LoadPoFromString(LANGID nLangID, const CStringA& sContent)
 			else
 			{
 				// Unknown string
-				LOG( "CLocalization Error : Invalid .po-line #%d: %s\n", nLine, sOriginalLine );
+				LOG( "CLocalization Error : Invalid .po-line #%d: %s\n", nLine, (LPCSTR)sOriginalLine );
 				bRet = FALSE;
 				break;
 			}
@@ -792,7 +792,7 @@ BOOL CLocalization::LoadPoFromString(LANGID nLangID, const CStringA& sContent)
 		case '\"':
 			if ( mode != mode_msgid && mode != mode_msgstr )
 			{
-				LOG( "CLocalization Error : Invalid .po-line #%d: %s\n", nLine, sOriginalLine );
+				LOG( "CLocalization Error : Invalid .po-line #%d: %s\n", nLine, (LPCSTR)sOriginalLine );
 				bRet = FALSE;
 				break;
 			}
@@ -804,7 +804,7 @@ BOOL CLocalization::LoadPoFromString(LANGID nLangID, const CStringA& sContent)
 			else
 			{
 				// Unknown string
-				LOG( "CLocalization Error : Invalid .po-line #%d: %s\n", nLine, sOriginalLine );
+				LOG( "CLocalization Error : Invalid .po-line #%d: %s\n", nLine, (LPCSTR)sOriginalLine );
 				bRet = FALSE;
 				break;
 			}
@@ -823,7 +823,7 @@ BOOL CLocalization::LoadPoFromString(LANGID nLangID, const CStringA& sContent)
 	if ( bRet && mode != mode_msgstr )
 	{
 		// Unknown string
-		LOG( "CLocalization Error : Invalid .po-line #%d: %s\n", nLine, sOriginalLine );
+		LOG( "CLocalization Error : Invalid .po-line #%d: %s\n", nLine, (LPCSTR)sOriginalLine );
 		bRet = FALSE;
 	}
 
