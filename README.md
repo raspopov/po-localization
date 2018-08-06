@@ -1,17 +1,17 @@
-PO-Localization
+ PO-Localization
+-----------------
 
 This is a library designed to help C++ developers in creating Windows
 application to translate it on world languages. Project contains an
 utility to convert existing resources of application in PO-file and
 adds ability to use translated PO-files to application itself.
 The PO-file is a native format of poEdit (a very convenient application
-for translators). 
+for translators).
 
-========================================================================
+ Compression
+-------------
 
-Compression
-
-Library can load translations in uncompressed or compressed formats 
+Library can load translations in uncompressed or compressed formats
 (Lempel-Ziv algorithm only). Uncompressed files has ".po" extension and
 compressed ones has ".p_" extension. Compressed files can be produced
 by Microsoft File Compression Utility named "compress.exe". It can be
@@ -28,12 +28,11 @@ files.
 Note: Some versions of compress.exe produces incorrect compressed files
 (1 byte differ) just get another version of utility.
 
-========================================================================
-
-EXE to PO file converter usage:
+ EXE to PO file converter usage
+--------------------------------
 
 	exe2po.exe {input file.exe} {output file.po}
-	
+
 NOTE: You can ease converter usage by dropping exe2po.exe to Windows folder
 and registering "Create PO" context menu by merging with "exe2po-register.reg"
 file (undo with "exe2po-unregister.reg" file).
@@ -60,8 +59,8 @@ Generated .po-file blocks for dialog box resources:
 	msgid "English dialog control"
 	msgstr ""
 
-	Where {control-class} is a "Button", "Static" etc.
-	If dialog control id is a 0xffff then {dialog-control-id} = ( 0x80000000 | ordinal ) where ordinal is a number 0, 1, 2 etc.
+Where {control-class} is a "Button", "Static" etc.
+If dialog control id is a 0xffff then {dialog-control-id} = ( 0x80000000 | ordinal ) where ordinal is a number 0, 1, 2 etc.
 
 Generated .po-file blocks for string resources:
 
@@ -69,20 +68,18 @@ Generated .po-file blocks for string resources:
 	msgid "English string"
 	msgstr ""
 
-========================================================================
+ License
+---------
 
-License:
+Localization.h and Localization.cpp licensed under LGPL 2.1. \
+exe2po and sample licensed under GPL 2.0.
 
-	Localization.h and Localization.cpp licensed under LGPL 2.1.
-	exe2po and sample licensed under GPL 2.0.
-
-========================================================================
-
-Copyrights:
+ Copyrights
+------------
 
 PO-Localization
-Copyright (C) Nikolay Raspopov, 2011-2015.
-https://sourceforge.net/projects/po-localization/
+Copyright (C) Nikolay Raspopov, 2011-2018. \
+https://www.cherubicsoft.com/en/projects/po-localization
 
-Microsoft (R) File Compression Utility Version 2.50
+Microsoft (R) File Compression Utility Version 2.50 \
 Copyright (C) Microsoft Corp. 1990-1994. All rights reserved.
