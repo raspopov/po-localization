@@ -41,12 +41,12 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "Comments", "http://code.google.com/p/po-localization/"
+            VALUE "Comments", "https://github.com/raspopov/po-localization"
             VALUE "CompanyName", "Raspopov"
             VALUE "FileDescription", "EXE to PO file converter"
             VALUE "FileVersion", "1.0.0.4"
             VALUE "InternalName", "exe2po"
-            VALUE "LegalCopyright", "Copyright © 2011-2015 Nikolay Raspopov"
+            VALUE "LegalCopyright", "Copyright © 2011-2018 Nikolay Raspopov"
             VALUE "OriginalFilename", "exe2po.exe"
             VALUE "ProductName", "Localization Library"
             VALUE "ProductVersion", "1.0.0.4"
@@ -67,6 +67,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\exe2po.ico"
+
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 

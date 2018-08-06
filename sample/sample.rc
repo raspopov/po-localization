@@ -28,6 +28,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\sample.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
@@ -80,12 +81,12 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "Comments", "http://code.google.com/p/po-localization/"
+            VALUE "Comments", "https://github.com/raspopov/po-localization"
             VALUE "CompanyName", "Raspopov"
             VALUE "FileDescription", "Localization Library Sample"
             VALUE "FileVersion", "1.0.0.4"
             VALUE "InternalName", "sample"
-            VALUE "LegalCopyright", "Copyright © 2011-2015 Nikolay Raspopov"
+            VALUE "LegalCopyright", "Copyright © 2011-2018 Nikolay Raspopov"
             VALUE "OriginalFilename", "sample.exe"
             VALUE "ProductName", "Localization Library"
             VALUE "ProductVersion", "1.0.0.4"
@@ -189,6 +190,7 @@ END
 //
 
 25                      PO                      "res\\sample.exe.19.p_"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
