@@ -1,0 +1,9 @@
+/.vs
+/sample/Win32
+/sample/x64
+/exe2po/Win32
+/exe2po/x64
+/Win32
+/x64
+*.user
+*.p_
