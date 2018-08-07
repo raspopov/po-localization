@@ -1,4 +1,6 @@
- PO-Localization
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/983675f415f5405da0846ec33156092f)](https://www.codacy.com/app/raspopov/po-localization?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=raspopov/po-localization&amp;utm_campaign=Badge_Grade)
+
+PO-Localization
 -----------------
 
 This is a library designed to help C++ developers in creating Windows
