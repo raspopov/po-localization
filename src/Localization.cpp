@@ -433,12 +433,10 @@ BOOL CLocalization::Load(LPCTSTR szModule)
 
 BOOL CALLBACK CLocalization::EnumResNameProc(HMODULE /*hModule*/, LPCTSTR /*lpszType*/, LPTSTR lpszName, LONG_PTR lParam)
 {
-	CLocalization* pThis = (CLocalization*)lParam;
-
-	if ( (UINT_PTR)lpszName < 0xffff )
+	CLocalization* pThis = reinterpret_cast< CLocalization* >( lParam );
+	if ( pThis && (UINT_PTR)lpszName < 0xffff )
 	{
-		pThis->m_pLanguages.SetAt( (WORD)(UINT_PTR)lpszName,
-			CString( _T("$") ) + pThis->m_strModule );
+		pThis->m_pLanguages.SetAt( (WORD)(UINT_PTR)lpszName, CString( _T("$") ) + pThis->m_strModule );
 	}
 
 	return TRUE;
