@@ -4,9 +4,12 @@ setlocal
 call clean.cmd
 
 set vc="%VS140COMNTOOLS%..\..\VC\vcvarsall.bat"
-if exist %vc% goto build
-echo Microsoft Visual C++ 2015 is missing. Please go to http://www.visualstudio.com/ and install free Community edition.
+if exist %vc% goto :build
+set vc="%VS150COMNTOOLS%..\..\VC\Auxiliary\Build\vcvarsall.bat"
+if exist %vc% goto :build
+echo Microsoft Visual C++ 2015/2017 is missing. Please go to http://www.visualstudio.com/ and install free Community edition.
 exit /b 1
+
 :build
 echo Building...
 call %vc% x86
