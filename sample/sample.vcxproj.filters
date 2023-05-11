@@ -29,12 +29,6 @@
     <None Include="res\sample.exe.19.p_">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\sample.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\sample.rc2">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">

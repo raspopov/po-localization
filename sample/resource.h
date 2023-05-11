@@ -3,7 +3,6 @@
 // Used by sample.rc
 //
 #define IDD_SAMPLE_DIALOG               102
-#define IDR_MAINFRAME                   128
 #define IDS_STRING130                   130
 #define IDR_MENU1                       131
 #define IDC_BUTTON1                     1000
@@ -14,7 +13,6 @@
 #define IDC_LANGS                       1005
 #define IDC_COMBO2                      1006
 #define IDC_EDIT2                       1007
-#define IDC_HOTKEY1                     1010
 #define IDC_SYSLINK1                    1011
 #define IDC_MFCLINK1                    1012
 #define IDC_COMMAND1                    1013

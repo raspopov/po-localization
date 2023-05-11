@@ -41,12 +41,12 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "Comments", "https://github.com/raspopov/po-localization"
+            VALUE "Comments", "https://www.cherubicsoft.com/en/projects/po-localization/"
             VALUE "CompanyName", "Raspopov"
             VALUE "FileDescription", "EXE to PO file converter"
             VALUE "FileVersion", "1.0.0.4"
             VALUE "InternalName", "exe2po"
-            VALUE "LegalCopyright", "Copyright © 2011-2018 Nikolay Raspopov"
+            VALUE "LegalCopyright", "Copyright © 2011-2023 Nikolay Raspopov"
             VALUE "OriginalFilename", "exe2po.exe"
             VALUE "ProductName", "Localization Library"
             VALUE "ProductVersion", "1.0.0.4"

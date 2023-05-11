@@ -1,7 +1,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/983675f415f5405da0846ec33156092f)](https://www.codacy.com/app/raspopov/po-localization?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=raspopov/po-localization&amp;utm_campaign=Badge_Grade)
 
 PO-Localization
------------------
+===============
 
 This is a library designed to help C++ developers in creating Windows
 application to translate it on world languages. Project contains an
@@ -10,8 +10,8 @@ adds ability to use translated PO-files to application itself.
 The PO-file is a native format of poEdit (a very convenient application
 for translators).
 
- Compression
--------------
+Compression
+-----------
 
 Library can load translations in uncompressed or compressed formats
 (Lempel-Ziv algorithm only). Uncompressed files has ".po" extension and
@@ -30,8 +30,8 @@ files.
 Note: Some versions of compress.exe produces incorrect compressed files
 (1 byte differ) just get another version of utility.
 
- EXE to PO file converter usage
---------------------------------
+EXE to PO file converter usage
+------------------------------
 
 	exe2po.exe {input file.exe} {output file.po}
 
@@ -70,8 +70,8 @@ Generated .po-file blocks for string resources:
 	msgid "English string"
 	msgstr ""
 
- License
----------
+License
+-------
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -85,12 +85,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
- Copyrights
-------------
+Copyrights
+----------
 
-PO-Localization
-Copyright (C) Nikolay Raspopov, 2011-2018. \
-https://www.cherubicsoft.com/en/projects/po-localization
+* PO-Localization
 
-Microsoft (R) File Compression Utility Version 2.50 \
+Copyright (C) Nikolay Raspopov, 2011-2023.
+
+https://www.cherubicsoft.com/en/projects/po-localization/
+
+* Microsoft (R) File Compression Utility Version 2.50
+
 Copyright (C) Microsoft Corp. 1990-1994. All rights reserved.

@@ -3,9 +3,9 @@
 
 /*
 This file is part of EXE to PO file converter (EXE2PO)
-https://github.com/raspopov/po-localization
+https://www.cherubicsoft.com/en/projects/po-localization/
 
-Copyright (C) 2011-2018 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2011-2023 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

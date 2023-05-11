@@ -1,14 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2047
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "exe2po", "exe2po\exe2po.vcxproj", "{29F88A73-AB86-4748-B96B-E010EA4DD45D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{13D18C95-84A4-4B3A-AC51-40B90C7B7A07} = {13D18C95-84A4-4B3A-AC51-40B90C7B7A07}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sample", "sample\sample.vcxproj", "{13D18C95-84A4-4B3A-AC51-40B90C7B7A07}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4081BAC6-060E-4E22-96F2-595FB5E9F56F}"
 	ProjectSection(SolutionItems) = preProject
+		build.cmd = build.cmd
 		exe2po-register.reg = exe2po-register.reg
 		exe2po-unregister.reg = exe2po-unregister.reg
 		LICENSE = LICENSE

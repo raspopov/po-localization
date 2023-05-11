@@ -3,9 +3,9 @@
 
 /*
 This file is part of Localization library
-https://github.com/raspopov/po-localization
+https://www.cherubicsoft.com/en/projects/po-localization/
 
-Copyright (C) 2011-2018 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2011-2023 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ CSampleDlg::CSampleDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CSampleDlg::IDD, pParent)
 	, m_nCombo ( 0 )
 {
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
 void CSampleDlg::DoDataExchange(CDataExchange* pDX)
@@ -53,9 +52,6 @@ END_MESSAGE_MAP()
 BOOL CSampleDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
-
-	SetIcon( m_hIcon, TRUE );		// Set big icon
-	SetIcon( m_hIcon, FALSE );		// Set small icon
 
 	theApp.m_pLoc.FillComboBox( m_pLangs.GetSafeHwnd() );
 
